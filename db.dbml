@@ -1,0 +1,118 @@
+Table refresh_tokens {
+  id int pk
+  client_id uuid
+  instance_id uuid
+  token varchar
+  user_id uuid
+  revoked bool
+  revoked_at timestamp
+  created_at timestamp
+  updated_at timestamp
+  session_id uuid
+  parent uuid
+}
+
+Table access_token {
+  id int pk
+  client_id uuid
+  instance_id uuid
+  token varchar
+  user_id uuid
+  revoked bool
+  revoked_at timestamp
+  created_at timestamp
+  updated_at timestamp
+  session_id uuid
+  parent uuid
+}
+
+Table session {
+  id uuid pk
+  client_id uuid
+  user_id uuid
+  created_at timestamp
+  updated_at timestamp
+  aal varchar // authentication assurance level
+  refreshed_at timestamp
+  expires_at timestamp
+  user_agent text
+  ip inet
+  tag text
+}
+
+Table user {
+  id uuid pk
+  client_id uuid
+  instance_id uuid
+  aud varchar // audience - resource servers that should accept
+  role varchar
+  meta_data jsonb
+  created_at timestamp
+  last_signed_in_at timestamp
+  is_banned bool
+  is_deleted bool
+  deleted_at timestamp
+  is_super_user bool
+}
+
+Table user_attributes {
+  user_id uuid
+  key varchar
+  value jsonb
+  created_at timestamps
+  updated_at timestamps
+}
+
+Table identities {
+  id uuid pk
+  client_id uuid
+  provider_type varchar
+  provider_id varchar
+  user_id uuid
+  data jsonb
+  created_at timestamp
+  last_signed_in_at timestamp
+  updated_at timestamp
+  email varchar
+  phone varchar
+  email_verified bool
+  phone_verified bool
+}
+
+Table authentication_flow {
+  id uuid pk
+  client_id uuid
+  user_id uuid
+  provider_type varchar
+  auth_code varchar
+  code_challenge varchar
+  code_challenge_method varchar
+  provider_access_token varchar
+  provider_refresh_token varchar
+  created_at timestamp
+  updated_at timestamp
+  auth_code_issued_at timestamp
+}
+
+Table client {
+  id uuid pk
+  secret text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table providers {
+  type varchar pk
+  mappings jsonb
+  name text
+}
+
+Table client_providers {
+  id uuid pk
+  client_id uuid
+  provider_type varchar
+  enabled bool
+  data jsonb
+  created_at timestamp
+  updated_at timestamp
+}
