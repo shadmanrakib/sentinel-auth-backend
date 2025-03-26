@@ -1,118 +1,197 @@
 Table refresh_tokens {
-  id int pk
-  client_id uuid
-  instance_id uuid
-  token varchar
-  user_id uuid
-  revoked bool
+  id int [pk, increment]
+  client_id uuid [not null, ref: > clients.id]
+  instance_id uuid [not null]
+  token varchar [not null, unique]
+  user_id uuid [not null, ref: > users.id]
+  revoked bool [not null, default: false]
   revoked_at timestamp
-  created_at timestamp
-  updated_at timestamp
-  session_id uuid
-  parent uuid
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  session_id uuid [not null, ref: > sessions.id]
+  parent uuid [ref: > refresh_tokens.id]
+  expires_at timestamp [not null]
+
+  indexes {
+    (token) [unique]
+    (user_id)
+    (client_id)
+    (session_id)
+    (revoked)
+  }
 }
 
-Table access_token {
-  id int pk
-  client_id uuid
-  instance_id uuid
-  token varchar
-  user_id uuid
-  revoked bool
+Table access_tokens {
+  id int [pk, increment]
+  client_id uuid [not null, ref: > clients.id]
+  instance_id uuid [not null]
+  token varchar [not null, unique]
+  user_id uuid [not null, ref: > users.id]
+  revoked bool [not null, default: false]
   revoked_at timestamp
-  created_at timestamp
-  updated_at timestamp
-  session_id uuid
-  parent uuid
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  session_id uuid [not null, ref: > sessions.id]
+  parent uuid [ref: > refresh_tokens.id]
+  expires_at timestamp [not null]
+  scope text[]
+
+  indexes {
+    (token) [unique]
+    (user_id)
+    (client_id)
+    (session_id)
+    (revoked)
+  }
 }
 
-Table session {
-  id uuid pk
-  client_id uuid
-  user_id uuid
-  created_at timestamp
-  updated_at timestamp
-  aal varchar // authentication assurance level
+Table sessions {
+  id uuid [pk]
+  client_id uuid [not null, ref: > clients.id]
+  user_id uuid [not null, ref: > users.id]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  aal varchar [not null, default: '1'] // authentication assurance level
   refreshed_at timestamp
-  expires_at timestamp
+  expires_at timestamp [not null]
   user_agent text
   ip inet
   tag text
+  is_active bool [not null, default: true]
+  
+  indexes {
+    (user_id)
+    (client_id)
+    (expires_at)
+    (is_active)
+  }
 }
 
-Table user {
-  id uuid pk
-  client_id uuid
-  instance_id uuid
-  aud varchar // audience - resource servers that should accept
-  role varchar
+Table users {
+  id uuid [pk]
+  client_id uuid [not null, ref: > clients.id]
+  instance_id uuid [not null]
+  aud varchar [not null] // audience - resource servers that should accept
+  role varchar [not null, default: 'user']
   meta_data jsonb
-  created_at timestamp
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
   last_signed_in_at timestamp
-  is_banned bool
-  is_deleted bool
+  is_banned bool [not null, default: false]
+  is_deleted bool [not null, default: false]
   deleted_at timestamp
-  is_super_user bool
+  is_super_user bool [not null, default: false]
+  
+  indexes {
+    (client_id)
+    (role)
+    (is_banned)
+    (is_deleted)
+    (is_super_user)
+  }
 }
 
 Table user_attributes {
-  user_id uuid
-  key varchar
-  value jsonb
-  created_at timestamps
-  updated_at timestamps
+  id uuid [pk]
+  user_id uuid [not null, ref: > users.id]
+  key varchar [not null]
+  value jsonb [not null]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  
+  indexes {
+    (user_id, key) [unique]
+  }
 }
 
 Table identities {
-  id uuid pk
-  client_id uuid
-  provider_type varchar
-  provider_id varchar
-  user_id uuid
+  id uuid [pk]
+  client_id uuid [not null, ref: > clients.id]
+  provider_type varchar [not null, ref: > providers.type]
+  provider_id varchar [not null]
+  user_id uuid [not null, ref: > users.id]
   data jsonb
-  created_at timestamp
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
   last_signed_in_at timestamp
-  updated_at timestamp
   email varchar
   phone varchar
-  email_verified bool
-  phone_verified bool
+  email_verified bool [not null, default: false]
+  phone_verified bool [not null, default: false]
+  
+  indexes {
+    (provider_type, provider_id) [unique]
+    (user_id)
+    (email)
+    (phone)
+    (client_id)
+  }
 }
 
-Table authentication_flow {
-  id uuid pk
-  client_id uuid
-  user_id uuid
-  provider_type varchar
-  auth_code varchar
+Table authentication_flows {
+  id uuid [pk]
+  client_id uuid [not null, ref: > clients.id]
+  user_id uuid [ref: > users.id]
+  provider_type varchar [not null, ref: > providers.type]
+  auth_code varchar [unique]
   code_challenge varchar
   code_challenge_method varchar
   provider_access_token varchar
   provider_refresh_token varchar
-  created_at timestamp
-  updated_at timestamp
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
   auth_code_issued_at timestamp
+  expires_at timestamp [not null]
+  redirect_uri text [not null]
+  state varchar
+  
+  indexes {
+    (auth_code) [unique]
+    (client_id)
+    (user_id)
+    (expires_at)
+  }
 }
 
-Table client {
-  id uuid pk
-  secret text
-  created_at timestamp
-  updated_at timestamp
+Table clients {
+  id uuid [pk]
+  name varchar [not null]
+  secret text [not null]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  redirect_uris text[] [not null]
+  allowed_origins text[]
+  logo_url text
+  
+  indexes {
+    (name)
+  }
 }
 
 Table providers {
-  type varchar pk
+  type varchar [pk]
   mappings jsonb
-  name text
+  name text [not null]
+  icon text
+  description text
+  enabled bool [not null, default: true]
+  
+  indexes {
+    (enabled)
+  }
 }
 
 Table client_providers {
-  id uuid pk
-  client_id uuid
-  provider_type varchar
-  enabled bool
+  id uuid [pk]
+  client_id uuid [not null, ref: > clients.id]
+  provider_type varchar [not null, ref: > providers.type]
+  enabled bool [not null, default: true]
   data jsonb
-  created_at timestamp
-  updated_at timestamp
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  
+  indexes {
+    (client_id, provider_type) [unique]
+    (enabled)
+  }
 }
