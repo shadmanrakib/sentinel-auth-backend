@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -o hello-world-server .
+RUN CGO_ENABLED=0 GOOS=linux go build -o server .
 
 # Use a slim alpine image for the final stage
 FROM alpine:latest
@@ -32,4 +32,4 @@ COPY --from=builder /app/hello-world-server .
 EXPOSE 8080
 
 # Command to run the executable
-CMD ["./hello-world-server"]
+CMD ["./server"]
