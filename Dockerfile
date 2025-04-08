@@ -5,12 +5,12 @@ FROM golang:1.24-alpine AS builder
 WORKDIR /app
 
 # Download dependencies and copy into container
-COPY go.mod go.sum ./
+COPY go.mod ./
 RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -o server .
+RUN GOOS=linux go build -o server .
 
 # Use a slim image to run the application
 FROM alpine:latest
@@ -22,7 +22,7 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
 # Copy the pre-built binary from the building stage
-COPY --from=builder /app/hello-world-server .
+COPY --from=builder /app/server .
 
 # Expose the port the app runs on
 EXPOSE 8080
