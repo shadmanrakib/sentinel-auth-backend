@@ -9,4 +9,26 @@ services:
       - .:/app
     environment:
       - GO_ENV=development
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=sentinel_auth
+    depends_on:
+      - db
     restart: unless-stopped
+
+  db:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_DB: sentinel_auth
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
