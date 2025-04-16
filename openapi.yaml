@@ -5,7 +5,9 @@ info:
 paths:
   /.well-known/jwks.json:
     get:
-      summary: 
+      summary:
+      parameters:
+      responses:
   /user/authorize:
   /user/token:
   /user/revoke:
