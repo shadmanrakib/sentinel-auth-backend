@@ -11,7 +11,7 @@ CREATE TABLE "refresh_tokens" (
   "created_at" timestamp NOT NULL DEFAULT (now()),
   "updated_at" timestamp NOT NULL DEFAULT (now()),
   "session_id" uuid NOT NULL,
-  "parent" uuid,
+  "parent" int,
   "expires_at" timestamp NOT NULL
 );
 
@@ -26,7 +26,7 @@ CREATE TABLE "access_tokens" (
   "created_at" timestamp NOT NULL DEFAULT (now()),
   "updated_at" timestamp NOT NULL DEFAULT (now()),
   "session_id" uuid NOT NULL,
-  "parent" uuid,
+  "parent" int,
   "expires_at" timestamp NOT NULL,
   "scope" text[]
 );
