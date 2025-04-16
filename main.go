@@ -1,20 +1,32 @@
 package main
+import "github.com/joho/godotenv"
 
 import (
 	"fmt"
 	"log"
-	"net/http"
+	"os"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
+	"sentinel-auth-backend/models"
 )
 
-func helloWorldHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, World!")
-}
-
 func main() {
-	// Define routes
-	http.HandleFunc("/", helloWorldHandler)
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("❌ Error loading .env file:", err)
+	}
 
-	// Start the server
-	fmt.Println("Server starting on port 8080...")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_PORT"),
+	)
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	err = db.AutoMigrate(&models.User{})
+
 }
