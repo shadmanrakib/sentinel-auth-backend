@@ -15,7 +15,8 @@ services:
       - DB_PASSWORD=postgres
       - DB_NAME=sentinel_auth
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
   db:
@@ -25,6 +26,11 @@ services:
       POSTGRES_DB: sentinel_auth
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
       - "5432:5432"
     volumes:
