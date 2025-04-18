@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 	"net/http"
-	"sentinel-auth-backend/config"
-	"sentinel-auth-backend/database"
+	"sentinel-auth-backend/internal/config"
+	"sentinel-auth-backend/internal/database"
 
 	"github.com/gin-gonic/gin"
 )
