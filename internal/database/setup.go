@@ -3,8 +3,8 @@ package database
 import (
 	"fmt"
 	"log"
-	"sentinel-auth-backend/config"
-	"sentinel-auth-backend/models"
+	"sentinel-auth-backend/internal/config"
+	"sentinel-auth-backend/internal/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
