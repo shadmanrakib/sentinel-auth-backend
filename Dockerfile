@@ -10,7 +10,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN GOOS=linux go build -o server .
+RUN GOOS=linux go build -o server ./cmd/server
 
 # Use a slim image to run the application
 FROM alpine:latest
