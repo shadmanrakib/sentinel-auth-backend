@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"sentinel-auth-backend/internal/config"
 	"sentinel-auth-backend/internal/database"
+	"sentinel-auth-backend/internal/routes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,11 +21,12 @@ func main() {
 
 	router := gin.Default()
 
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
+	// very basic versioning
+	v1 := router.Group("v1")
+
+	// register nested routes
+	routes.RegisterAdminRoutes(v1.Group("/admin"))
+	routes.RegisterAuthRoutes(v1.Group("/auth"))
 
 	router.Run(appConfig.API_ADDR) // listen and serve on 0.0.0.0:8080
 }
