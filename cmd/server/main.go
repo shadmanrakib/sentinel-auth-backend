@@ -30,6 +30,7 @@ func main() {
 	// register nested routes
 	routes.RegisterAdminRoutes(v1.Group("/admin"))
 	routes.RegisterAuthRoutes(v1.Group("/auth"))
+	routes.RegisterUserRoutes(v1.Group("/user"))
 
 	router.Run(appConfig.API_ADDR) // listen and serve on 0.0.0.0:8080
 }

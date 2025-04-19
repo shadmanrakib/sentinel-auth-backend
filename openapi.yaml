@@ -3,19 +3,47 @@ info:
   title: Sentinel Auth Backend
   version: 0.0.1
 paths:
-  /.well-known/jwks.json:
+  /auth/providers:
     get:
-      summary:
-      parameters:
-      responses:
-  /user/authorize:
-  /user/token:
-  /user/revoke:
+      summary: return all available providers that a user can sign in with for given application
+  /auth/providers/email/register:
+    post:
+      summary: register user via email (do not issue tokens)
+  /auth/providers/email/login:
+    post:
+      summary: sign in user and return a one time code that can be used to fetch tokens later
+  /auth/exchange:
+    post:
+      summary: exchange provider tokens for a one time code which can be used to later sentinel auth tokens (id, access, refresh)
+  /auth/tokens:
+    get:
+      summary: exchange one time token code for sentinel auth tokens (id, access, refresh). has code verification step
+  /auth/refresh:
+    post:
+      summary: take a refresh token and return refreshed access token and id token
   /user/userinfo:
-  /user/logout:
-  /user/refresh:
-  /admin/revoke:
-  /admin/delete-user:
+    get:
+      summary: return all claims/attributes you would find on the id token
+  /user/revoke/id:
+    post:
+      summary: provided an id token, revoke it
+  /user/revoke/access:
+    post:
+      summary: provided an access token, revoke it
+  /user/revoke/refresh:
+    post:
+      summary: provided a refresh token, revoke it
+  /admin/providers/all:
+  /admin/providers/enabled:
+  /admin/provider/enable:
+  /admin/provider/disable:
+  /admin/provider/settings:
+  /admin/users:
+  /admin/user/info:
+  /admin/user/delete:
+  /admin/user/logout:
+  /admin/user/tokens:
+  /admin/revoke/id:
+  /admin/revoke/access:
+  /admin/revoke/refresh:
   /admin/verify:
-  /admin/logout-user:
-  /admin/userinfo:
