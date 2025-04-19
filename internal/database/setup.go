@@ -27,7 +27,10 @@ func SetupDb(appConfig config.Config) *gorm.DB {
 		log.Fatal("❌ Database connection failed:", err)
 	}
 
-	err = db.AutoMigrate(&models.User{})
+	dbModels := []interface{}{
+		&models.User{},
+	}
+	err = db.AutoMigrate(dbModels...)
 	if err != nil {
 		log.Fatal("❌ Migration failed:", err)
 	}
