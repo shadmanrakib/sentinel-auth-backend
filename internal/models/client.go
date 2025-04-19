@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
@@ -11,8 +12,8 @@ type Client struct {
 	Name           string `gorm:"not null"`
 	Secret         string `gorm:"not null"`
 	LogoUrl        *string
-	RedirectUris   []string
-	AllowedOrigins []string
+	RedirectUris   pq.StringArray `gorm:"type:text[]"`
+	AllowedOrigins pq.StringArray `gorm:"type:text[]"`
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	DeletedAt      gorm.DeletedAt `gorm:"index"`
