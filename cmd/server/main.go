@@ -24,6 +24,9 @@ func main() {
 	// very basic versioning
 	v1 := router.Group("v1")
 
+	// register misc top level v1 routes
+	routes.RegisterRootRoutes(v1)
+
 	// register nested routes
 	routes.RegisterAdminRoutes(v1.Group("/admin"))
 	routes.RegisterAuthRoutes(v1.Group("/auth"))
