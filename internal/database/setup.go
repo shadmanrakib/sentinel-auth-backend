@@ -30,6 +30,7 @@ func SetupDb(appConfig config.Config) *gorm.DB {
 	dbModels := []interface{}{
 		&models.User{},
 		&models.Client{},
+		&models.ProviderOption{},
 	}
 	err = db.AutoMigrate(dbModels...)
 	if err != nil {
