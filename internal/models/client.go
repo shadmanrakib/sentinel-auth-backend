@@ -17,4 +17,5 @@ type Client struct {
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	DeletedAt      gorm.DeletedAt `gorm:"index"`
+	IsRootClient   bool           `gorm:"default:FALSE"`
 }
