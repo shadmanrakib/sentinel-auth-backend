@@ -8,7 +8,7 @@ import (
 
 func RegisterAuthRoutes(g *gin.RouterGroup) {
 	// return all available providers that a user can sign in with for given application
-	g.POST("/providers", handlers.Stub)
+	g.GET("/providers", handlers.Stub)
 
 	// register user via email (do not issue tokens)
 	g.POST("/providers/email/register", handlers.Stub)
