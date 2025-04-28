@@ -8,7 +8,7 @@ paths:
       summary: Get all available providers that a user can sign in with by client id
       parameters:
         - name: client_id
-          in: path
+          in: query
           required: true
           schema:
             type: string
