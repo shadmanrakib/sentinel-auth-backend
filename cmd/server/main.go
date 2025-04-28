@@ -17,7 +17,7 @@ func main() {
 	}
 
 	// create database and run necessary migrations
-	database.SetupDb(appConfig)
+	db := database.SetupDb(appConfig)
 
 	router := gin.Default()
 
@@ -29,7 +29,7 @@ func main() {
 
 	// register nested routes
 	routes.RegisterAdminRoutes(v1.Group("/admin"))
-	routes.RegisterAuthRoutes(v1.Group("/auth"))
+	routes.RegisterAuthRoutes(v1.Group("/auth"), db)
 	routes.RegisterUserRoutes(v1.Group("/user"))
 
 	router.Run(appConfig.API_ADDR) // listen and serve on 0.0.0.0:8080

@@ -11,7 +11,15 @@ import (
 func MakeGetProvidersHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var providers []models.ClientProvider
-		db.Where("client_id = ?").Find(&providers)
-		ctx.JSON(http.StatusNotImplemented, gin.H{"message": "Need to implement!"})
+
+		clientID := ctx.Query("client_id")
+		if clientID == "" {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "client_id is required"})
+			return
+		}
+
+		db.Where("client_id = ?", clientID).Find(&providers)
+
+		ctx.JSON(http.StatusOK, gin.H{"providers": providers})
 	}
 }
