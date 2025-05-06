@@ -1,27 +1,27 @@
 package routes
 
 import (
+	"sentinel-auth-backend/internal/api"
 	"sentinel-auth-backend/internal/handlers"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-func RegisterAuthRoutes(g *gin.RouterGroup, db *gorm.DB) {
+func RegisterAuthRoutes(g *gin.RouterGroup, wrapper *api.ServerInterfaceWrapper) {
 	// return all available providers that a user can sign in with for given application
-	g.GET("/providers", handlers.MakeGetProvidersHandler(db))
+	g.GET("/providers", wrapper.GetAuthProviders)
 
 	// register user via email (do not issue tokens)
-	g.POST("/providers/email/register", handlers.Stub)
+	g.POST("/providers/email/register", handlers.StubHandler)
 	// sign in user and return a one time code that can be used to fetch tokens later
-	g.POST("/providers/email/login", handlers.Stub)
+	g.POST("/providers/email/login", handlers.StubHandler)
 
 	// exchange provider tokens for a one time code which can be used to later sentinel auth tokens (id, access, refresh)
-	g.POST("/exchange", handlers.Stub)
+	g.POST("/exchange", handlers.StubHandler)
 
 	// use code to fetch sentinel auth tokens (id, access, refresh). has code verification step
-	g.GET("/tokens", handlers.Stub)
+	g.GET("/tokens", handlers.StubHandler)
 
 	// take a refresh token and return refreshed access token and id token
-	g.POST("/refresh", handlers.Stub)
+	g.POST("/refresh", handlers.StubHandler)
 }
