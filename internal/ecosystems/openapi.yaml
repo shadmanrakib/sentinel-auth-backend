@@ -21,6 +21,66 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/StrippedClientProvider'
+                  
+  /auth/providers/email/register:
+    post:
+      summary: Registers a user if email not taken and password meets security requirements
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRegistrationRequest'
+      responses:
+        '201':
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthCodeResponse'
+        '400':
+          description: Invalid request or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  /auth/providers/email/login:
+    post:
+      summary: Logs in a user with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailLoginRequest'
+      responses:
+        '200':
+          description: User successfully logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthCodeResponse'
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+
 components:
   schemas:
     StrippedClientProvider:
@@ -44,3 +104,78 @@ components:
         data:
           type: object
           nullable: true
+          
+    EmailRegistrationRequest:
+      type: object
+      required:
+        - email
+        - password
+        - client_id
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+        password:
+          type: string
+          format: password
+          description: User's password (must meet security requirements)
+        client_id:
+          type: string
+          description: Client application ID
+        redirect_uri:
+          type: string
+          format: uri
+          description: URI to redirect after authentication
+        metadata:
+          type: object
+          description: Additional registration metadata
+          
+    EmailLoginRequest:
+      type: object
+      required:
+        - email
+        - password
+        - client_id
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+        password:
+          type: string
+          format: password
+          description: User's password
+        client_id:
+          type: string
+          description: Client application ID
+        redirect_uri:
+          type: string
+          format: uri
+          description: URI to redirect after authentication
+          
+    AuthCodeResponse:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          description: Authentication code to be exchanged for tokens
+        expires_in:
+          type: integer
+          description: Code expiration time in seconds
+          default: 600
+  
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - error_description
+      properties:
+        error:
+          type: string
+          description: Error code
+        error_description:
+          type: string
+          description: Human-readable error description

@@ -9,7 +9,59 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/oapi-codegen/runtime"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
+
+// AuthCodeResponse defines model for AuthCodeResponse.
+type AuthCodeResponse struct {
+	// Code Authentication code to be exchanged for tokens
+	Code string `json:"code"`
+
+	// ExpiresIn Code expiration time in seconds
+	ExpiresIn *int `json:"expires_in,omitempty"`
+}
+
+// EmailLoginRequest defines model for EmailLoginRequest.
+type EmailLoginRequest struct {
+	// ClientId Client application ID
+	ClientId string `json:"client_id"`
+
+	// Email User's email address
+	Email openapi_types.Email `json:"email"`
+
+	// Password User's password
+	Password string `json:"password"`
+
+	// RedirectUri URI to redirect after authentication
+	RedirectUri *string `json:"redirect_uri,omitempty"`
+}
+
+// EmailRegistrationRequest defines model for EmailRegistrationRequest.
+type EmailRegistrationRequest struct {
+	// ClientId Client application ID
+	ClientId string `json:"client_id"`
+
+	// Email User's email address
+	Email openapi_types.Email `json:"email"`
+
+	// Metadata Additional registration metadata
+	Metadata *map[string]interface{} `json:"metadata,omitempty"`
+
+	// Password User's password (must meet security requirements)
+	Password string `json:"password"`
+
+	// RedirectUri URI to redirect after authentication
+	RedirectUri *string `json:"redirect_uri,omitempty"`
+}
+
+// ErrorResponse defines model for ErrorResponse.
+type ErrorResponse struct {
+	// Error Error code
+	Error string `json:"error"`
+
+	// ErrorDescription Human-readable error description
+	ErrorDescription string `json:"error_description"`
+}
 
 // StrippedClientProvider defines model for StrippedClientProvider.
 type StrippedClientProvider struct {
@@ -29,11 +81,23 @@ type GetAuthProvidersParams struct {
 	ClientId string `form:"client_id" json:"client_id"`
 }
 
+// PostAuthProvidersEmailLoginJSONRequestBody defines body for PostAuthProvidersEmailLogin for application/json ContentType.
+type PostAuthProvidersEmailLoginJSONRequestBody = EmailLoginRequest
+
+// PostAuthProvidersEmailRegisterJSONRequestBody defines body for PostAuthProvidersEmailRegister for application/json ContentType.
+type PostAuthProvidersEmailRegisterJSONRequestBody = EmailRegistrationRequest
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Get all available providers that a user can sign in with by client id
 	// (GET /auth/providers)
 	GetAuthProviders(c *gin.Context, params GetAuthProvidersParams)
+	// Logs in a user with email and password
+	// (POST /auth/providers/email/login)
+	PostAuthProvidersEmailLogin(c *gin.Context)
+	// Registers a user if email not taken and password meets security requirements
+	// (POST /auth/providers/email/register)
+	PostAuthProvidersEmailRegister(c *gin.Context)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -78,6 +142,32 @@ func (siw *ServerInterfaceWrapper) GetAuthProviders(c *gin.Context) {
 	siw.Handler.GetAuthProviders(c, params)
 }
 
+// PostAuthProvidersEmailLogin operation middleware
+func (siw *ServerInterfaceWrapper) PostAuthProvidersEmailLogin(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.PostAuthProvidersEmailLogin(c)
+}
+
+// PostAuthProvidersEmailRegister operation middleware
+func (siw *ServerInterfaceWrapper) PostAuthProvidersEmailRegister(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.PostAuthProvidersEmailRegister(c)
+}
+
 // GinServerOptions provides options for the Gin server.
 type GinServerOptions struct {
 	BaseURL      string
@@ -106,4 +196,6 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	}
 
 	router.GET(options.BaseURL+"/auth/providers", wrapper.GetAuthProviders)
+	router.POST(options.BaseURL+"/auth/providers/email/login", wrapper.PostAuthProvidersEmailLogin)
+	router.POST(options.BaseURL+"/auth/providers/email/register", wrapper.PostAuthProvidersEmailRegister)
 }
