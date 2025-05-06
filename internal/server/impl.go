@@ -24,3 +24,7 @@ func Create(db *gorm.DB, config *config.Config) *Server {
 func (s *Server) GetAuthProviders(c *gin.Context, params api.GetAuthProvidersParams) {
 	handlers.MakeGetProvidersHandler(s.DB)(c, params)
 }
+
+func (s *Server) PostAuthProvidersEmailRegister(c *gin.Context) {
+	handlers.MakePostProviderEmailRegisterHandler(s.DB)(c)
+}

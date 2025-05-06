@@ -12,7 +12,7 @@ func RegisterAuthRoutes(g *gin.RouterGroup, wrapper *api.ServerInterfaceWrapper)
 	g.GET("/providers", wrapper.GetAuthProviders)
 
 	// register user via email (do not issue tokens)
-	g.POST("/providers/email/register", handlers.StubHandler)
+	g.POST("/providers/email/register", wrapper.PostAuthProvidersEmailRegister)
 	// sign in user and return a one time code that can be used to fetch tokens later
 	g.POST("/providers/email/login", handlers.StubHandler)
 
