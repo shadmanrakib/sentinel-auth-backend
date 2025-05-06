@@ -8,8 +8,8 @@ import (
 
 type User struct {
 	ID        string `gorm:"type:uuid;default:gen_random_uuid();primaryKey"`
+	ClientId  string `gorm:"not null"`
 	Email     string `gorm:"unique;not null"`
-	Password  string `gorm:"not null"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
