@@ -13,7 +13,7 @@ type JsonDictionary map[string]interface{}
 func (j *JsonDictionary) Scan(value interface{}) error {
 	data, ok := value.([]byte)
 	if !ok {
-		return errors.New("Failed to cast value to []bytes")
+		return errors.New("failed to cast value to []bytes")
 	}
 	return json.Unmarshal(data, &j)
 }
