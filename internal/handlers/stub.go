@@ -6,6 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Stub(ctx *gin.Context) {
+func StubHandler(ctx *gin.Context) {
 	ctx.JSON(http.StatusNotImplemented, gin.H{"message": "Need to implement!"})
 }

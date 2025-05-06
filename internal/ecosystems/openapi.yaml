@@ -18,9 +18,9 @@ paths:
           content:
             application/json:
               schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/StrippedClientProvider'
+                type: array
+                items:
+                  $ref: '#/components/schemas/StrippedClientProvider'
 components:
   schemas:
     StrippedClientProvider:
@@ -41,4 +41,6 @@ components:
               type: string
             description:
               type: string
-        data: {}
+        data:
+          type: object
+          nullable: true
