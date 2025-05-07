@@ -9,16 +9,16 @@ import (
 	"gorm.io/gorm"
 )
 
-type CreateUserWithEmailErrors string
+type CreateUserWithEmailError string
 
 const (
-	CreateUserWithEmailErrorMissingRequiredFields CreateUserWithEmailErrors = "Missing required fields"
-	CreateUserWithEmailErrorInvalidEmail          CreateUserWithEmailErrors = "Invalid email"
-	CreateUserWithEmailErrorWeakPassword          CreateUserWithEmailErrors = "Weak password"
-	CreateUserWithEmailErrorEmailTaken            CreateUserWithEmailErrors = "Email already taken"
-	CreateUserWithEmailErrorInvalidClient         CreateUserWithEmailErrors = "Client does not exist"
-	CreateUserWithEmailErrorInvalidClientProvider CreateUserWithEmailErrors = "Provider not enabled for client"
-	CreateUserWithEmailErrorGeneric               CreateUserWithEmailErrors = "An error occured"
+	CreateUserWithEmailErrorMissingRequiredFields CreateUserWithEmailError = "Missing required fields"
+	CreateUserWithEmailErrorInvalidEmail          CreateUserWithEmailError = "Invalid email"
+	CreateUserWithEmailErrorWeakPassword          CreateUserWithEmailError = "Weak password"
+	CreateUserWithEmailErrorEmailTaken            CreateUserWithEmailError = "Email already taken"
+	CreateUserWithEmailErrorInvalidClient         CreateUserWithEmailError = "Client does not exist"
+	CreateUserWithEmailErrorInvalidClientProvider CreateUserWithEmailError = "Provider not enabled for client"
+	CreateUserWithEmailErrorGeneric               CreateUserWithEmailError = "An error occured"
 )
 
 func doesClientExist(db *gorm.DB, clientId string) bool {
