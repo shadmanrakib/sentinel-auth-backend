@@ -42,3 +42,14 @@ func SetupDb(appConfig config.Config) *gorm.DB {
 
 	return db
 }
+
+// making it global to be accessed by other packages
+var dbInstance *gorm.DB
+
+func SetDb(database *gorm.DB) {
+	dbInstance = database
+}
+
+func GetDb() *gorm.DB {
+	return dbInstance
+}
