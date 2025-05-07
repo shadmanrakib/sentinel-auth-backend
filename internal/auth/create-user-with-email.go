@@ -51,7 +51,7 @@ func CreateUserWithEmail(db *gorm.DB, clientId string, email string, password st
 		return nil, nil, fmt.Errorf("%s", CreateUserWithEmailErrorMissingRequiredFields)
 	}
 
-	if valid, _ := validators.IsValidEmail(email); !valid {
+	if valid := validators.IsValidEmail(email); !valid {
 		return nil, nil, fmt.Errorf("%s", CreateUserWithEmailErrorInvalidEmail)
 	}
 

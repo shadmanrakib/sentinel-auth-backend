@@ -1,13 +1,13 @@
 package validators
 
 import (
-	"net/mail"
+	"regexp"
 	"unicode/utf8"
 )
 
-func IsValidEmail(email string) (bool, error) {
-	_, err := mail.ParseAddress(email)
-	return err != nil, err
+func IsValidEmail(email string) bool {
+	re := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+	return re.MatchString(email)
 }
 
 func IsPasswordStrong(password string) bool {
