@@ -129,11 +129,13 @@ components:
       type: object
       required:
         - code
+        - client_id
       properties:
         code:
           type: string
           description: Auth code returned from sign in and sign up methods for sentinel tokens
-          
+        client_id:
+          type: string
     AuthTokenTokensResponse:
       type: object
       required:

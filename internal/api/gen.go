@@ -23,6 +23,8 @@ type AuthCodeResponse struct {
 
 // AuthTokenRequest defines model for AuthTokenRequest.
 type AuthTokenRequest struct {
+	ClientId string `json:"client_id"`
+
 	// Code Auth code returned from sign in and sign up methods for sentinel tokens
 	Code string `json:"code"`
 }
