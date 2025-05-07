@@ -19,7 +19,7 @@ type RedeemAuthCode struct {
 	UpdatedAt  time.Time
 	DeletedAt  gorm.DeletedAt `gorm:"index"`
 
-	Client   `gorm:"references:ID;foreignKey:ClientId"`
-	Identity `gorm:"references:ID;foreignKey:IdentityId"`
-	User     `gorm:"references:ID;foreignKey:UserId"`
+	Client   Client   `gorm:"foreignKey:ClientId" json:"-"`
+	Identity Identity `gorm:"foreignKey:IdentityId" json:"-"`
+	User     User     `gorm:"foreignKey:UserId" json:"-"`
 }

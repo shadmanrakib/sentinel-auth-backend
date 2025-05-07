@@ -22,7 +22,7 @@ func SeedDb(db *gorm.DB) {
 	// Create root client
 	rootClient := models.Client{
 		Name:           "Admin Root Client",
-		Secret:         generateSecureSecret(),
+		Secret:         GenerateSecureSecret(),
 		RedirectUris:   pq.StringArray{"http://localhost:3000/callback"},
 		AllowedOrigins: pq.StringArray{"http://localhost:3000"},
 		IsRootClient:   true,
@@ -55,7 +55,7 @@ func SeedDb(db *gorm.DB) {
 	}
 }
 
-func generateSecureSecret() string {
+func GenerateSecureSecret() string {
 	b := make([]byte, 32)
 	rand.Read(b)
 	return fmt.Sprintf("%x", b)

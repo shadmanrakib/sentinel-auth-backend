@@ -23,7 +23,7 @@ const (
 
 func doesClientExist(db *gorm.DB, clientId string) bool {
 	var client models.Client
-	result := db.First(&client, clientId)
+	result := db.Where("id = ?", clientId).First(&client)
 	return result.RowsAffected > 0
 }
 
@@ -40,7 +40,7 @@ func getClientProvider(db *gorm.DB, clientId string, providerOptionId string) (*
 
 func isEmailTaken(db *gorm.DB, clientId string, email string) bool {
 	var existingUser models.Identity
-	result := db.First(&existingUser, "client_id = ? AND sub = ? AND provider_option_id = ?", clientId, email, "email")
+	result := db.First(&existingUser, "client_id = ? AND provider_sub = ? AND provider_option_id = ?", clientId, email, "email")
 	return result.RowsAffected > 0
 }
 

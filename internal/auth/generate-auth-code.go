@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"crypto/rand"
+	"sentinel-auth-backend/internal/database"
 	"sentinel-auth-backend/internal/models"
 	"time"
 
@@ -14,10 +14,7 @@ type GenerateAuthCodeResponse struct {
 }
 
 func GenerateAuthCode(db *gorm.DB, identity *models.Identity) (*GenerateAuthCodeResponse, error) {
-	bytes := make([]byte, 32)
-	rand.Read(bytes)
-
-	code := string(bytes)
+	code := database.GenerateSecureSecret()
 	expiresIn := 600 // in seconds (10 minutes)
 
 	expiresAt := time.Now().Add(time.Duration(expiresIn) * time.Second)

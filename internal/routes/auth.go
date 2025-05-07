@@ -17,7 +17,7 @@ func RegisterAuthRoutes(g *gin.RouterGroup, wrapper *api.ServerInterfaceWrapper)
 	g.POST("/providers/email/login", wrapper.PostAuthProvidersEmailLogin)
 
 	// use code to fetch sentinel auth tokens (id, access, refresh). has code verification step
-	g.GET("/token", wrapper.PostAuthToken)
+	g.POST("/token", wrapper.PostAuthToken)
 
 	// exchange provider tokens for a one time code which can be used to later sentinel auth tokens (id, access, refresh)
 	g.POST("/exchange", handlers.StubHandler)

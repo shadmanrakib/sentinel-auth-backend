@@ -16,6 +16,6 @@ type ClientProvider struct {
 	UpdatedAt        time.Time
 	DeletedAt        gorm.DeletedAt `gorm:"index"`
 
-	Client         `gorm:"references:ID;foreignKey:ClientId"`
-	ProviderOption `gorm:"references:ID;foreignKey:ProviderOptionId"`
+	Client         Client         `gorm:"references:ID;foreignKey:ClientId" json:"-"`
+	ProviderOption ProviderOption `gorm:"references:ID;foreignKey:ProviderOptionId" json:"-"`
 }

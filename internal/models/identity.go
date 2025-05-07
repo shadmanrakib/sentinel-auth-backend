@@ -18,8 +18,8 @@ type Identity struct {
 	UpdatedAt        time.Time
 	DeletedAt        gorm.DeletedAt `gorm:"index"`
 
-	User           `gorm:"references:ID;foreignKey:UserId"`
-	Client         `gorm:"references:ID;foreignKey:ClientId"`
-	ProviderOption `gorm:"references:ID;foreignKey:ProviderOptionId"`
-	ClientProvider `gorm:"references:ID;foreignKey:ClientProviderId"`
+	User           User           `gorm:"references:ID;foreignKey:UserId" json:"-"`
+	Client         Client         `gorm:"references:ID;foreignKey:ClientId" json:"-"`
+	ProviderOption ProviderOption `gorm:"references:ID;foreignKey:ProviderOptionId" json:"-"`
+	ClientProvider ClientProvider `gorm:"references:ID;foreignKey:ClientProviderId" json:"-"`
 }
