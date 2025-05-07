@@ -22,7 +22,7 @@ func MakeGetProvidersHandler(db *gorm.DB) func(*gin.Context, api.GetAuthProvider
 		var enrichedProviders []api.StrippedClientProvider
 		for _, provider := range providers {
 			var providerOption models.ProviderOption
-			db.Where("id = ?", provider.ID).Find(&providerOption)
+			db.Where("id = ?", provider.ProviderOptionId).Find(&providerOption)
 
 			enrichedProviders = append(enrichedProviders, api.StrippedClientProvider{
 				ClientId: &params.ClientId,
