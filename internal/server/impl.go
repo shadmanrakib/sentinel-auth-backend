@@ -28,3 +28,7 @@ func (s *Server) GetAuthProviders(c *gin.Context, params api.GetAuthProvidersPar
 func (s *Server) PostAuthProvidersEmailRegister(c *gin.Context) {
 	handlers.MakePostProviderEmailRegisterHandler(s.DB)(c)
 }
+
+func (s *Server) PostAuthProvidersEmailLogin(c *gin.Context) {
+	handlers.MakePostProviderEmailLoginHandler(s.DB)(c)
+}
