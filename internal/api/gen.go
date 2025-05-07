@@ -21,6 +21,20 @@ type AuthCodeResponse struct {
 	ExpiresIn *int `json:"expires_in,omitempty"`
 }
 
+// AuthTokenRequest defines model for AuthTokenRequest.
+type AuthTokenRequest struct {
+	// Code Auth code returned from sign in and sign up methods for sentinel tokens
+	Code string `json:"code"`
+}
+
+// AuthTokenTokensResponse defines model for AuthTokenTokensResponse.
+type AuthTokenTokensResponse struct {
+	AccessToken  string `json:"access_token"`
+	ExpiresIn    *int   `json:"expires_in,omitempty"`
+	IdToken      string `json:"id_token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
 // EmailLoginRequest defines model for EmailLoginRequest.
 type EmailLoginRequest struct {
 	// ClientId Client application ID
@@ -87,6 +101,9 @@ type PostAuthProvidersEmailLoginJSONRequestBody = EmailLoginRequest
 // PostAuthProvidersEmailRegisterJSONRequestBody defines body for PostAuthProvidersEmailRegister for application/json ContentType.
 type PostAuthProvidersEmailRegisterJSONRequestBody = EmailRegistrationRequest
 
+// PostAuthTokenJSONRequestBody defines body for PostAuthToken for application/json ContentType.
+type PostAuthTokenJSONRequestBody = AuthTokenRequest
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Get all available providers that a user can sign in with by client id
@@ -98,6 +115,9 @@ type ServerInterface interface {
 	// Registers a user if email not taken and password meets security requirements
 	// (POST /auth/providers/email/register)
 	PostAuthProvidersEmailRegister(c *gin.Context)
+	// Swap auth token from sign in methods for access, identity, and refresh tokens
+	// (POST /auth/token)
+	PostAuthToken(c *gin.Context)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -168,6 +188,19 @@ func (siw *ServerInterfaceWrapper) PostAuthProvidersEmailRegister(c *gin.Context
 	siw.Handler.PostAuthProvidersEmailRegister(c)
 }
 
+// PostAuthToken operation middleware
+func (siw *ServerInterfaceWrapper) PostAuthToken(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.PostAuthToken(c)
+}
+
 // GinServerOptions provides options for the Gin server.
 type GinServerOptions struct {
 	BaseURL      string
@@ -198,4 +231,5 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.GET(options.BaseURL+"/auth/providers", wrapper.GetAuthProviders)
 	router.POST(options.BaseURL+"/auth/providers/email/login", wrapper.PostAuthProvidersEmailLogin)
 	router.POST(options.BaseURL+"/auth/providers/email/register", wrapper.PostAuthProvidersEmailRegister)
+	router.POST(options.BaseURL+"/auth/token", wrapper.PostAuthToken)
 }

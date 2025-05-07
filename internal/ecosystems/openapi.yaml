@@ -79,7 +79,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-                
+  /auth/token:
+    post:
+      summary: Swap auth token from sign in methods for access, identity, and refresh tokens
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthTokenRequest'
+      responses:
+        '200':
+          description: Successful exchange of code for tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenTokensResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
   schemas:
@@ -104,7 +124,32 @@ components:
         data:
           type: object
           nullable: true
+
+    AuthTokenRequest:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          description: Auth code returned from sign in and sign up methods for sentinel tokens
           
+    AuthTokenTokensResponse:
+      type: object
+      required:
+        - access_token
+        - id_token
+        - refresh_token
+      properties:
+        access_token:
+          type: string
+        id_token:
+          type: string
+        refresh_token:
+          type: string
+        expires_in:
+          type: integer
+
     EmailRegistrationRequest:
       type: object
       required:
