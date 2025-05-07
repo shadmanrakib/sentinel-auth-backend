@@ -11,5 +11,5 @@ func RegisterAdminRoutes(g *gin.RouterGroup, wrapper *api.ServerInterfaceWrapper
 	g.POST("/provider/disable", handlers.DisableProviderHandler)
 	g.GET("/providers", handlers.GetClientProvidersHandler)
 	g.PUT("/provider/keys", handlers.UpdateProviderKeysHandler)
-
+	g.PUT("/user/attributes", handlers.UpdateUserAttributesHandler)
 }

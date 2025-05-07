@@ -125,3 +125,43 @@ func UpdateProviderKeysHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Provider keys updated successfully"})
 }
+
+
+func UpdateUserAttributesHandler(c *gin.Context) {
+	var req struct {
+		UserID   string `json:"user_id" binding:"required"`
+		Name     string `json:"name"`
+		Email    string `json:"email"`
+		IsActive *bool  `json:"is_active"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	db := database.GetDb()
+
+	var user models.User
+	if err := db.First(&user, "id = ?", req.UserID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	if req.Name != "" {
+		user.Name = req.Name
+	}
+	if req.Email != "" {
+		user.Email = req.Email
+	}
+	if req.IsActive != nil {
+		user.IsActive = *req.IsActive
+	}
+
+	if err := db.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User updated successfully"})
+}
