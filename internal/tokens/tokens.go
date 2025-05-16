@@ -20,13 +20,13 @@ func CreateIdToken(
 	sign_in_provider string,
 	userData UserData,
 	identities Identities,
-	authTime int,
+	authTime int64,
 	tokenDurationInSeconds int,
 ) (string, error) {
 	// TODO: fetch user data outside and pass in
 	// TODO: define a struct for this user data
 
-	expiredAt := authTime + tokenDurationInSeconds
+	expiredAt := authTime + int64(tokenDurationInSeconds)
 
 	var token = jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
@@ -60,13 +60,13 @@ func CreateAccessToken(
 	userData UserData,
 	identities Identities,
 	scopes []string,
-	authTime int,
+	authTime int64,
 	tokenDurationInSeconds int,
 ) (string, error) {
 	// TODO: fetch user data outside and pass in
 	// TODO: define a struct for this user data
 
-	expiredAt := authTime + tokenDurationInSeconds
+	expiredAt := authTime + int64(tokenDurationInSeconds)
 
 	var token = jwt.NewWithClaims(
 		jwt.SigningMethodHS256,

@@ -1,13 +1,25 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"sentinel-auth-backend/internal/api"
 	"sentinel-auth-backend/internal/auth"
+	"sentinel-auth-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
+
+func getClientById(db *gorm.DB, clientId string) (*models.Client, error) {
+	var client models.Client
+	result := db.First(&client, "id = ?", clientId)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("Failed to find client")
+	}
+
+	return &client, nil
+}
 
 func MakePostAuthTokenHandler(db *gorm.DB) func(*gin.Context) {
 	return func(ctx *gin.Context) {
@@ -21,7 +33,16 @@ func MakePostAuthTokenHandler(db *gorm.DB) func(*gin.Context) {
 			return
 		}
 
-		tokens, err := auth.RedeemAuthCode(db, req.ClientId, req.Code)
+		client, err := getClientById(db, req.ClientId)
+		if err != nil {
+			ctx.JSON(http.StatusUnauthorized, api.ErrorResponse{
+				Error:            "invalid_credentials",
+				ErrorDescription: "Invalid credentials",
+			})
+			return
+		}
+
+		tokens, err := auth.RedeemAuthCode(db, req.ClientId, req.Code, client)
 
 		// handle errors in creating user
 		if err != nil {
