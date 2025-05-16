@@ -1,9 +1,8 @@
 package database
 
 import (
-	"crypto/rand"
-	"fmt"
 	"log"
+	"sentinel-auth-backend/internal/crypto"
 	"sentinel-auth-backend/internal/models"
 
 	"github.com/lib/pq"
@@ -21,8 +20,9 @@ func SeedDb(db *gorm.DB) {
 
 	// Create root client
 	rootClient := models.Client{
-		Name:           "Admin Root Client",
-		Secret:         GenerateSecureSecret(),
+		Name:   "Admin Root Client",
+		Secret: crypto.GenerateSecureSecret(),
+		// TODO: Figure out how to handle the urls for root
 		RedirectUris:   pq.StringArray{"http://localhost:3000/callback"},
 		AllowedOrigins: pq.StringArray{"http://localhost:3000"},
 		IsRootClient:   true,
@@ -53,10 +53,4 @@ func SeedDb(db *gorm.DB) {
 	if err := db.Create(&clientProvider).Error; err != nil {
 		log.Fatal("❌ Failed to create client provider association:", err)
 	}
-}
-
-func GenerateSecureSecret() string {
-	b := make([]byte, 32)
-	rand.Read(b)
-	return fmt.Sprintf("%x", b)
 }

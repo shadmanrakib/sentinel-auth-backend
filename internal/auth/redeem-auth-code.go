@@ -2,8 +2,8 @@ package auth
 
 import (
 	"errors"
+	"sentinel-auth-backend/internal/crypto"
 	"sentinel-auth-backend/internal/models"
-	"sentinel-auth-backend/internal/tokens"
 	"time"
 
 	"gorm.io/gorm"
@@ -38,42 +38,47 @@ func RedeemAuthCode(db *gorm.DB, clientId string, code string, client *models.Cl
 		return nil, errors.New(string(RedeemAuthCodeErrorInvalidCode))
 	}
 
-	accessToken, err := tokens.CreateAccessToken(
+	shortTokenDurationSeconds := 60 * 60 * 1
+	accessToken, err := crypto.CreateAccessToken(
 		client.ID,
 		client.Secret,
 		"",
 		authCodeRecord.Identity.ProviderOptionId,
-		tokens.UserData{},
-		tokens.Identities{},
+		crypto.UserData{},
+		crypto.Identities{},
 		[]string{"profile"},
 		now.Unix(),
-		60*60*1,
+		shortTokenDurationSeconds,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	idToken, err := tokens.CreateIdToken(
+	idToken, err := crypto.CreateIdToken(
 		client.ID,
 		client.Secret,
 		"",
 		authCodeRecord.Identity.ProviderOptionId,
-		tokens.UserData{},
-		tokens.Identities{},
+		crypto.UserData{},
+		crypto.Identities{},
 		now.Unix(),
-		60*60*1,
+		shortTokenDurationSeconds,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	refresh := "RT_23FJLJHJ023I4"
+	// 100 year duration
+	refresh, err := crypto.CreateRefreshToken(db, "", now.Unix(), 60*60*24*365*100, &authCodeRecord.Identity)
+	if err != nil {
+		return nil, err
+	}
 
 	tokens := Tokens{
 		Access:    accessToken,
 		Id:        idToken,
 		Refresh:   refresh,
-		ExpiresIn: 360000,
+		ExpiresIn: shortTokenDurationSeconds,
 	}
 
 	authCodeRecord.Redeemed = true

@@ -1,7 +1,12 @@
-package tokens
+package crypto
 
 import (
+	"fmt"
+	"sentinel-auth-backend/internal/models"
+	"time"
+
 	"github.com/golang-jwt/jwt/v5"
+	"gorm.io/gorm"
 )
 
 type Claims = map[string]interface{}
@@ -89,6 +94,32 @@ func CreateAccessToken(
 	return tokenStr, err
 }
 
-func CreateRefreshToken() {
+func CreateRefreshToken(
+	db *gorm.DB,
+	issuer string,
+	authTime int64,
+	tokenDurationInSeconds int,
+	identity *models.Identity,
+) (string, error) {
+	expiresAtTimestamp := authTime + int64(tokenDurationInSeconds)
+	expiresAt := time.Unix(expiresAtTimestamp, 0)
 
+	random := GenerateSecureSecret()
+	token := fmt.Sprintf("RT_%s", random)
+
+	rf := models.RefreshToken{
+		ClientId:         identity.ClientId,
+		ProviderSub:      identity.ProviderSub,
+		ProviderOptionId: identity.ProviderOptionId,
+		ClientProviderId: identity.ClientProviderId,
+		IdentityId:       identity.ID,
+		UserId:           identity.UserId,
+		Token:            token,
+		Revoked:          false,
+		ExpiresAt:        expiresAt,
+	}
+
+	db.Create(&rf)
+
+	return token, nil
 }
