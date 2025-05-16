@@ -23,5 +23,5 @@ func RegisterAuthRoutes(g *gin.RouterGroup, wrapper *api.ServerInterfaceWrapper)
 	g.POST("/exchange", handlers.StubHandler)
 
 	// take a refresh token and return refreshed access token and id token
-	g.POST("/refresh", handlers.StubHandler)
+	g.POST("/refresh", wrapper.PostAuthRefresh)
 }

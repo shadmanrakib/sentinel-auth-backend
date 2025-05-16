@@ -36,3 +36,7 @@ func (s *Server) PostAuthProvidersEmailLogin(c *gin.Context) {
 func (s *Server) PostAuthToken(c *gin.Context) {
 	handlers.MakePostAuthTokenHandler(s.DB)(c)
 }
+
+func (s *Server) PostAuthRefresh(c *gin.Context) {
+	handlers.MakePostAuthRefreshHandler(s.DB)(c)
+}

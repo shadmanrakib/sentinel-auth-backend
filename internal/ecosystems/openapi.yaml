@@ -101,6 +101,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /auth/refresh:
+    post:
+      summary: Get new access and identity tokens through refresh token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRefreshRequest'
+      responses:
+        '200':
+          description: Successful exchange of code for tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthRefreshTokensResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
 components:
   schemas:
     StrippedClientProvider:
@@ -151,6 +174,32 @@ components:
           type: string
         expires_in:
           type: integer
+
+
+    AuthRefreshRequest:
+      type: object
+      required:
+        - refresh_token
+        - client_id
+      properties:
+        refresh_token:
+          type: string
+          description: A refresh token issued for the client_id
+        client_id:
+          type: string
+    AuthRefreshTokensResponse:
+      type: object
+      required:
+        - access_token
+        - id_token
+      properties:
+        access_token:
+          type: string
+        id_token:
+          type: string
+        expires_in:
+          type: integer
+
 
     EmailRegistrationRequest:
       type: object

@@ -2,6 +2,7 @@ package crypto
 
 import (
 	"fmt"
+	"log"
 	"sentinel-auth-backend/internal/models"
 	"time"
 
@@ -106,6 +107,14 @@ func CreateRefreshToken(
 
 	random := GenerateSecureSecret()
 	token := fmt.Sprintf("RT_%s", random)
+
+	log.Printf("Identity values:")
+	log.Printf("  ID: '%s'", identity.ID)
+	log.Printf("  ClientId: '%s'", identity.ClientId)
+	log.Printf("  ProviderSub: '%s'", identity.ProviderSub)
+	log.Printf("  ProviderOptionId: '%s'", identity.ProviderOptionId)
+	log.Printf("  ClientProviderId: '%s'", identity.ClientProviderId)
+	log.Printf("  UserId: '%s'", identity.UserId)
 
 	rf := models.RefreshToken{
 		ClientId:         identity.ClientId,

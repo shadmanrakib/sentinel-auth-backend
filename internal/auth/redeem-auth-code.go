@@ -26,7 +26,7 @@ type Tokens struct {
 func RedeemAuthCode(db *gorm.DB, clientId string, code string, client *models.Client) (*Tokens, error) {
 	var authCodeRecord models.RedeemAuthCode
 
-	result := db.First(&authCodeRecord, "code = ? AND client_id = ?", code, clientId)
+	result := db.Preload("Identity").Preload("User").Preload("Client").First(&authCodeRecord, "code = ? AND client_id = ?", code, clientId)
 
 	if result.Error != nil || result.RowsAffected == 0 {
 		return nil, errors.New(string(RedeemAuthCodeErrorNotFound))

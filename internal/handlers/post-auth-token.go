@@ -15,7 +15,7 @@ func getClientById(db *gorm.DB, clientId string) (*models.Client, error) {
 	var client models.Client
 	result := db.First(&client, "id = ?", clientId)
 	if result.RowsAffected == 0 {
-		return nil, errors.New("Failed to find client")
+		return nil, errors.New("failed to find client")
 	}
 
 	return &client, nil

@@ -21,6 +21,21 @@ type AuthCodeResponse struct {
 	ExpiresIn *int `json:"expires_in,omitempty"`
 }
 
+// AuthRefreshRequest defines model for AuthRefreshRequest.
+type AuthRefreshRequest struct {
+	ClientId string `json:"client_id"`
+
+	// RefreshToken A refresh token issued for the client_id
+	RefreshToken string `json:"refresh_token"`
+}
+
+// AuthRefreshTokensResponse defines model for AuthRefreshTokensResponse.
+type AuthRefreshTokensResponse struct {
+	AccessToken string `json:"access_token"`
+	ExpiresIn   *int   `json:"expires_in,omitempty"`
+	IdToken     string `json:"id_token"`
+}
+
 // AuthTokenRequest defines model for AuthTokenRequest.
 type AuthTokenRequest struct {
 	ClientId string `json:"client_id"`
@@ -103,6 +118,9 @@ type PostAuthProvidersEmailLoginJSONRequestBody = EmailLoginRequest
 // PostAuthProvidersEmailRegisterJSONRequestBody defines body for PostAuthProvidersEmailRegister for application/json ContentType.
 type PostAuthProvidersEmailRegisterJSONRequestBody = EmailRegistrationRequest
 
+// PostAuthRefreshJSONRequestBody defines body for PostAuthRefresh for application/json ContentType.
+type PostAuthRefreshJSONRequestBody = AuthRefreshRequest
+
 // PostAuthTokenJSONRequestBody defines body for PostAuthToken for application/json ContentType.
 type PostAuthTokenJSONRequestBody = AuthTokenRequest
 
@@ -117,6 +135,9 @@ type ServerInterface interface {
 	// Registers a user if email not taken and password meets security requirements
 	// (POST /auth/providers/email/register)
 	PostAuthProvidersEmailRegister(c *gin.Context)
+	// Get new access and identity tokens through refresh token
+	// (POST /auth/refresh)
+	PostAuthRefresh(c *gin.Context)
 	// Swap auth token from sign in methods for access, identity, and refresh tokens
 	// (POST /auth/token)
 	PostAuthToken(c *gin.Context)
@@ -190,6 +211,19 @@ func (siw *ServerInterfaceWrapper) PostAuthProvidersEmailRegister(c *gin.Context
 	siw.Handler.PostAuthProvidersEmailRegister(c)
 }
 
+// PostAuthRefresh operation middleware
+func (siw *ServerInterfaceWrapper) PostAuthRefresh(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.PostAuthRefresh(c)
+}
+
 // PostAuthToken operation middleware
 func (siw *ServerInterfaceWrapper) PostAuthToken(c *gin.Context) {
 
@@ -233,5 +267,6 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.GET(options.BaseURL+"/auth/providers", wrapper.GetAuthProviders)
 	router.POST(options.BaseURL+"/auth/providers/email/login", wrapper.PostAuthProvidersEmailLogin)
 	router.POST(options.BaseURL+"/auth/providers/email/register", wrapper.PostAuthProvidersEmailRegister)
+	router.POST(options.BaseURL+"/auth/refresh", wrapper.PostAuthRefresh)
 	router.POST(options.BaseURL+"/auth/token", wrapper.PostAuthToken)
 }
