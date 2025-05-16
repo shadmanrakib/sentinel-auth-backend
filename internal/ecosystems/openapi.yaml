@@ -123,6 +123,33 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /auth/verify:
+    post:
+      summary: Check if an access or id token is issued by sentinel and returns claims
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthVerifyRequest'
+      responses:
+        '200':
+          description: Token is valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthVerifyResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
   schemas:
@@ -200,6 +227,26 @@ components:
         expires_in:
           type: integer
 
+    AuthVerifyRequest: 
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          description: Id or access token as jwt string
+
+    AuthVerifyResponse: 
+      type: object
+      required:
+        - valid
+        - claims
+      properties:
+        valid:
+          type: boolean
+        claims:
+          type: object
+          description: Decoded token claims
 
     EmailRegistrationRequest:
       type: object

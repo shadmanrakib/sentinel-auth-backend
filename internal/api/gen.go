@@ -52,6 +52,19 @@ type AuthTokenTokensResponse struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
+// AuthVerifyRequest defines model for AuthVerifyRequest.
+type AuthVerifyRequest struct {
+	// Token Id or access token as jwt string
+	Token string `json:"token"`
+}
+
+// AuthVerifyResponse defines model for AuthVerifyResponse.
+type AuthVerifyResponse struct {
+	// Claims Decoded token claims
+	Claims map[string]interface{} `json:"claims"`
+	Valid  bool                   `json:"valid"`
+}
+
 // EmailLoginRequest defines model for EmailLoginRequest.
 type EmailLoginRequest struct {
 	// ClientId Client application ID
@@ -124,6 +137,9 @@ type PostAuthRefreshJSONRequestBody = AuthRefreshRequest
 // PostAuthTokenJSONRequestBody defines body for PostAuthToken for application/json ContentType.
 type PostAuthTokenJSONRequestBody = AuthTokenRequest
 
+// PostAuthVerifyJSONRequestBody defines body for PostAuthVerify for application/json ContentType.
+type PostAuthVerifyJSONRequestBody = AuthVerifyRequest
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Get all available providers that a user can sign in with by client id
@@ -141,6 +157,9 @@ type ServerInterface interface {
 	// Swap auth token from sign in methods for access, identity, and refresh tokens
 	// (POST /auth/token)
 	PostAuthToken(c *gin.Context)
+	// Check if an access or id token is issued by sentinel and returns claims
+	// (POST /auth/verify)
+	PostAuthVerify(c *gin.Context)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -237,6 +256,19 @@ func (siw *ServerInterfaceWrapper) PostAuthToken(c *gin.Context) {
 	siw.Handler.PostAuthToken(c)
 }
 
+// PostAuthVerify operation middleware
+func (siw *ServerInterfaceWrapper) PostAuthVerify(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.PostAuthVerify(c)
+}
+
 // GinServerOptions provides options for the Gin server.
 type GinServerOptions struct {
 	BaseURL      string
@@ -269,4 +301,5 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.POST(options.BaseURL+"/auth/providers/email/register", wrapper.PostAuthProvidersEmailRegister)
 	router.POST(options.BaseURL+"/auth/refresh", wrapper.PostAuthRefresh)
 	router.POST(options.BaseURL+"/auth/token", wrapper.PostAuthToken)
+	router.POST(options.BaseURL+"/auth/verify", wrapper.PostAuthVerify)
 }
