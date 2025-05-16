@@ -2,7 +2,6 @@ package crypto
 
 import (
 	"fmt"
-	"log"
 	"sentinel-auth-backend/internal/models"
 	"time"
 
@@ -10,20 +9,30 @@ import (
 	"gorm.io/gorm"
 )
 
-type Claims = map[string]interface{}
+type ClaimsDict = map[string]interface{}
 
 type UserData struct {
 	id         string
-	attributes Claims
+	attributes ClaimsDict
 }
 
-type Identities = map[string]Claims
+type Identities = map[string]ClaimsDict
+
+type TokenClaims struct {
+	jwt.RegisteredClaims
+	Algorithm string                 `json:"alg,omitempty"`
+	KID       string                 `json:"kid,omitempty"`
+	AuthTime  int64                  `json:"auth_time,omitempty"`
+	Scopes    []string               `json:"scopes,omitempty"`
+	Sentinel  map[string]interface{} `json:"sentinel,omitempty"`
+	TokenType string                 `json:"typ,omitempty"`
+}
 
 func CreateIdToken(
 	secretKeyId string,
 	secretKey string,
 	issuer string,
-	sign_in_provider string,
+	signInProvider string,
 	userData UserData,
 	identities Identities,
 	authTime int64,
@@ -34,24 +43,28 @@ func CreateIdToken(
 
 	expiredAt := authTime + int64(tokenDurationInSeconds)
 
+	claims := TokenClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    issuer,
+			Audience:  jwt.ClaimStrings{userData.id},
+			IssuedAt:  jwt.NewNumericDate(time.Unix(authTime, 0)),
+			ExpiresAt: jwt.NewNumericDate(time.Unix(expiredAt, 0)),
+			Subject:   userData.id,
+		},
+		TokenType: "JWT",
+		Algorithm: "HS256",
+		KID:       secretKeyId,
+		AuthTime:  authTime,
+		Sentinel: map[string]interface{}{
+			"identities":       identities,
+			"attributes":       userData.attributes,
+			"sign_in_provider": signInProvider,
+		},
+	}
+
 	var token = jwt.NewWithClaims(
-		jwt.SigningMethodHS256,
-		jwt.MapClaims{
-			"typ":       "JWT",
-			"alg":       "HS256",
-			"kid":       secretKeyId,
-			"iss":       issuer,
-			"aud":       userData.id,
-			"auth_time": authTime,
-			"iat":       authTime,
-			"exp":       expiredAt,
-			"sub":       userData.id,
-			"sentinel": map[string]interface{}{
-				"identities":       identities,
-				"attributes":       userData.attributes,
-				"sign_in_provider": sign_in_provider,
-			},
-		})
+		jwt.SigningMethodHS256, claims,
+	)
 
 	var tokenStr, err = token.SignedString([]byte(secretKey))
 
@@ -74,21 +87,27 @@ func CreateAccessToken(
 
 	expiredAt := authTime + int64(tokenDurationInSeconds)
 
-	var token = jwt.NewWithClaims(
-		jwt.SigningMethodHS256,
-		jwt.MapClaims{
-			"typ": "JWT",
-			"alg": "HS256",
-			"kid": secretKeyId,
-			"iss": issuer,
-			// TODO: maybe replace with url provided by user
-			"aud":       "sentinel",
-			"auth_time": authTime,
-			"iat":       authTime,
-			"exp":       expiredAt,
-			"sub":       userData.id,
-			"scopes":    []string{},
-		})
+	claims := TokenClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    issuer,
+			Audience:  jwt.ClaimStrings{"sentinel"},
+			IssuedAt:  jwt.NewNumericDate(time.Unix(authTime, 0)),
+			ExpiresAt: jwt.NewNumericDate(time.Unix(expiredAt, 0)),
+			Subject:   userData.id,
+		},
+		TokenType: "JWT",
+		Algorithm: "HS256",
+		KID:       secretKeyId,
+		AuthTime:  authTime,
+		Scopes:    scopes,
+		Sentinel: map[string]interface{}{
+			"identities":       identities,
+			"attributes":       userData.attributes,
+			"sign_in_provider": signInProvider,
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	var tokenStr, err = token.SignedString([]byte(secretKey))
 
@@ -107,14 +126,6 @@ func CreateRefreshToken(
 
 	random := GenerateSecureSecret()
 	token := fmt.Sprintf("RT_%s", random)
-
-	log.Printf("Identity values:")
-	log.Printf("  ID: '%s'", identity.ID)
-	log.Printf("  ClientId: '%s'", identity.ClientId)
-	log.Printf("  ProviderSub: '%s'", identity.ProviderSub)
-	log.Printf("  ProviderOptionId: '%s'", identity.ProviderOptionId)
-	log.Printf("  ClientProviderId: '%s'", identity.ClientProviderId)
-	log.Printf("  UserId: '%s'", identity.UserId)
 
 	rf := models.RefreshToken{
 		ClientId:         identity.ClientId,
