@@ -1,6 +1,7 @@
 package crypto
 
 import (
+	"errors"
 	"fmt"
 	"sentinel-auth-backend/internal/models"
 	"time"
@@ -20,6 +21,7 @@ type Identities = map[string]ClaimsDict
 
 type TokenClaims struct {
 	jwt.RegisteredClaims
+
 	Algorithm string                 `json:"alg,omitempty"`
 	KID       string                 `json:"kid,omitempty"`
 	AuthTime  int64                  `json:"auth_time,omitempty"`
@@ -142,4 +144,24 @@ func CreateRefreshToken(
 	db.Create(&rf)
 
 	return token, nil
+}
+
+func VerifyToken(client *models.Client, jwtToken string) (*TokenClaims, error) {
+	var claims TokenClaims
+
+	_, err := jwt.ParseWithClaims(jwtToken, &claims, func(t *jwt.Token) (interface{}, error) {
+		fmt.Printf("Token algorithm: %v\n", t.Header["alg"])
+		fmt.Printf("Client secret: %v\n", client.Secret)
+
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("non-hmac signing method")
+		}
+		return []byte(client.Secret), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &claims, nil
 }

@@ -40,3 +40,7 @@ func (s *Server) PostAuthToken(c *gin.Context) {
 func (s *Server) PostAuthRefresh(c *gin.Context) {
 	handlers.MakePostAuthRefreshHandler(s.DB)(c)
 }
+
+func (s *Server) PostAuthVerify(c *gin.Context) {
+	handlers.MakePostAuthVerifyHandler(s.DB)(c)
+}

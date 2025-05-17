@@ -29,7 +29,7 @@ func doesClientExist(db *gorm.DB, clientId string) bool {
 
 func getClientProvider(db *gorm.DB, clientId string, providerOptionId string) (*models.ClientProvider, error) {
 	var clientProvider models.ClientProvider
-	result := db.First(&clientProvider, "client_id = ? AND provider_option_id = ?", clientId, providerOptionId)
+	result := db.Preload("Client").Preload("ProviderOption").First(&clientProvider, "client_id = ? AND provider_option_id = ?", clientId, providerOptionId)
 
 	if result.RowsAffected == 0 {
 		return nil, fmt.Errorf("%s", "Failed to find")

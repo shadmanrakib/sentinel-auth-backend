@@ -18,7 +18,7 @@ const (
 
 func findIdentity(db *gorm.DB, clientId string, providerOptionId string, providerSub string) (*models.Identity, error) {
 	var identity models.Identity
-	result := db.First(&identity, "client_id = ? AND provider_option_id = ? AND provider_sub = ?", clientId, providerOptionId, providerSub)
+	result := db.Preload("User").Preload("Client").Preload("ProviderOption").Preload("ClientProvider").First(&identity, "client_id = ? AND provider_option_id = ? AND provider_sub = ?", clientId, providerOptionId, providerSub)
 	if result.Error != nil {
 		return nil, result.Error
 	}

@@ -23,7 +23,7 @@ type RefreshedTokens struct {
 
 func getRefreshTokenByToken(db *gorm.DB, token string) (*models.RefreshToken, error) {
 	var rf models.RefreshToken
-	result := db.First(&rf, "token = ?", token)
+	result := db.Preload("User").Preload("Client").Preload("ProviderOption").Preload("Identity").First(&rf, "token = ?", token)
 
 	if result.RowsAffected == 0 {
 		return nil, errors.New("failed to find")

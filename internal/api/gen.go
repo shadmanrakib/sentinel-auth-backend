@@ -54,6 +54,8 @@ type AuthTokenTokensResponse struct {
 
 // AuthVerifyRequest defines model for AuthVerifyRequest.
 type AuthVerifyRequest struct {
+	ClientId string `json:"client_id"`
+
 	// Token Id or access token as jwt string
 	Token string `json:"token"`
 }

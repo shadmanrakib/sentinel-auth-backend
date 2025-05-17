@@ -24,4 +24,7 @@ func RegisterAuthRoutes(g *gin.RouterGroup, wrapper *api.ServerInterfaceWrapper)
 
 	// take a refresh token and return refreshed access token and id token
 	g.POST("/refresh", wrapper.PostAuthRefresh)
+
+	// endpoint to verify token was created by sentinel and returns claims
+	g.POST("/verify", wrapper.PostAuthVerify)
 }

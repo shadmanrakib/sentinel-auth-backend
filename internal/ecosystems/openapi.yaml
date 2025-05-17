@@ -231,11 +231,13 @@ components:
       type: object
       required:
         - token
+        - client_id
       properties:
         token:
           type: string
           description: Id or access token as jwt string
-
+        client_id:
+          type: string
     AuthVerifyResponse: 
       type: object
       required:
