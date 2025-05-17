@@ -41,7 +41,7 @@ func MakePostAuthRefreshHandler(db *gorm.DB) func(*gin.Context) {
 		ctx.JSON(http.StatusOK, api.AuthRefreshTokensResponse{
 			AccessToken: tokens.Access,
 			IdToken:     tokens.Id,
-			ExpiresIn:   &tokens.ExpiresIn,
+			ExpiresIn:   tokens.ExpiresIn,
 		})
 	}
 }

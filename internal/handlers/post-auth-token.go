@@ -69,7 +69,7 @@ func MakePostAuthTokenHandler(db *gorm.DB) func(*gin.Context) {
 			AccessToken:  tokens.Access,
 			IdToken:      tokens.Id,
 			RefreshToken: tokens.Refresh,
-			ExpiresIn:    &tokens.ExpiresIn,
+			ExpiresIn:    tokens.ExpiresIn,
 		})
 	}
 }

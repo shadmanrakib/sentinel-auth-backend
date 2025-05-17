@@ -72,7 +72,7 @@ func MakePostProviderEmailRegisterHandler(db *gorm.DB) func(*gin.Context) {
 
 		ctx.JSON(http.StatusOK, api.AuthCodeResponse{
 			Code:      codeResp.Code,
-			ExpiresIn: &codeResp.ExpiresIn,
+			ExpiresIn: codeResp.ExpiresIn,
 		})
 	}
 }
