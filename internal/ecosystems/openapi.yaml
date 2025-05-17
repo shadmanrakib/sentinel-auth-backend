@@ -192,6 +192,7 @@ components:
         - access_token
         - id_token
         - refresh_token
+        - expires_in
       properties:
         access_token:
           type: string
@@ -219,6 +220,7 @@ components:
       required:
         - access_token
         - id_token
+        - expires_in
       properties:
         access_token:
           type: string
@@ -303,6 +305,7 @@ components:
       type: object
       required:
         - code
+        - expires_in
       properties:
         code:
           type: string
