@@ -18,7 +18,7 @@ type AuthCodeResponse struct {
 	Code string `json:"code"`
 
 	// ExpiresIn Code expiration time in seconds
-	ExpiresIn *int `json:"expires_in,omitempty"`
+	ExpiresIn int `json:"expires_in"`
 }
 
 // AuthRefreshRequest defines model for AuthRefreshRequest.
@@ -32,7 +32,7 @@ type AuthRefreshRequest struct {
 // AuthRefreshTokensResponse defines model for AuthRefreshTokensResponse.
 type AuthRefreshTokensResponse struct {
 	AccessToken string `json:"access_token"`
-	ExpiresIn   *int   `json:"expires_in,omitempty"`
+	ExpiresIn   int    `json:"expires_in"`
 	IdToken     string `json:"id_token"`
 }
 
@@ -47,7 +47,7 @@ type AuthTokenRequest struct {
 // AuthTokenTokensResponse defines model for AuthTokenTokensResponse.
 type AuthTokenTokensResponse struct {
 	AccessToken  string `json:"access_token"`
-	ExpiresIn    *int   `json:"expires_in,omitempty"`
+	ExpiresIn    int    `json:"expires_in"`
 	IdToken      string `json:"id_token"`
 	RefreshToken string `json:"refresh_token"`
 }
