@@ -8,6 +8,7 @@ import (
 	"sentinel-auth-backend/internal/routes"
 	"sentinel-auth-backend/internal/server"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,6 +30,13 @@ func main() {
 	wrapper := api.ServerInterfaceWrapper{
 		Handler: server,
 	}
+
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{"http://localhost:3000"} // Add your frontend URL here
+	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
+	corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization"}
+	corsConfig.AllowCredentials = true
+	router.Use(cors.New(corsConfig))
 
 	// very basic versioning
 	v1 := router.Group("v1")
