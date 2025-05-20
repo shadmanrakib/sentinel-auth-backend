@@ -79,6 +79,36 @@ declare const EmailLoginRequestSchema: z.ZodObject<{
     client_id: string;
     redirect_uri?: string | undefined;
 }>;
+declare const AuthTokenRequestSchema: z.ZodObject<{
+    code: z.ZodString;
+    client_id: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    code: string;
+    client_id: string;
+}, {
+    code: string;
+    client_id: string;
+}>;
+declare const AuthRefreshRequestSchema: z.ZodObject<{
+    refresh_token: z.ZodString;
+    client_id: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    refresh_token: string;
+    client_id: string;
+}, {
+    refresh_token: string;
+    client_id: string;
+}>;
+declare const AuthVerifyRequestSchema: z.ZodObject<{
+    token: z.ZodString;
+    client_id: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    client_id: string;
+    token: string;
+}, {
+    client_id: string;
+    token: string;
+}>;
 declare const AuthVerifyResponseSchema: z.ZodObject<{
     valid: z.ZodBoolean;
     claims: z.ZodRecord<z.ZodString, z.ZodAny>;
@@ -95,18 +125,18 @@ declare const StrippedClientProviderSchema: z.ZodObject<{
     provider_option: z.ZodObject<{
         id: z.ZodString;
         name: z.ZodString;
-        logo_url: z.ZodString;
+        logo_url: z.ZodOptional<z.ZodString>;
         description: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         id: string;
         name: string;
-        logo_url: string;
         description: string;
+        logo_url?: string | undefined;
     }, {
         id: string;
         name: string;
-        logo_url: string;
         description: string;
+        logo_url?: string | undefined;
     }>;
     data: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodAny>>>;
 }, "strip", z.ZodTypeAny, {
@@ -115,8 +145,8 @@ declare const StrippedClientProviderSchema: z.ZodObject<{
     provider_option: {
         id: string;
         name: string;
-        logo_url: string;
         description: string;
+        logo_url?: string | undefined;
     };
     data?: Record<string, any> | null | undefined;
 }, {
@@ -125,18 +155,32 @@ declare const StrippedClientProviderSchema: z.ZodObject<{
     provider_option: {
         id: string;
         name: string;
-        logo_url: string;
         description: string;
+        logo_url?: string | undefined;
     };
     data?: Record<string, any> | null | undefined;
+}>;
+declare const ErrorResponseSchema: z.ZodObject<{
+    error: z.ZodString;
+    error_description: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    error: string;
+    error_description: string;
+}, {
+    error: string;
+    error_description: string;
 }>;
 type TokensResponse = z.infer<typeof TokensResponseSchema>;
 type RefreshTokensResponse = z.infer<typeof RefreshTokensResponseSchema>;
 type AuthCodeResponse = z.infer<typeof AuthCodeResponseSchema>;
 type EmailRegistrationRequest = z.infer<typeof EmailRegistrationRequestSchema>;
 type EmailLoginRequest = z.infer<typeof EmailLoginRequestSchema>;
+type AuthTokenRequest = z.infer<typeof AuthTokenRequestSchema>;
+type AuthRefreshRequest = z.infer<typeof AuthRefreshRequestSchema>;
+type AuthVerifyRequest = z.infer<typeof AuthVerifyRequestSchema>;
 type AuthVerifyResponse = z.infer<typeof AuthVerifyResponseSchema>;
 type StrippedClientProvider = z.infer<typeof StrippedClientProviderSchema>;
+type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
 type SentinelAuthConfig = {
     baseUrl: string;
     clientId: string;
@@ -145,6 +189,12 @@ type SentinelAuthConfig = {
     autoRefresh?: boolean;
     refreshThreshold?: number;
 };
+interface Storage {
+    get(key: string): string | null;
+    set(key: string, value: string): void;
+    remove(key: string): void;
+    clear(): void;
+}
 interface JWTClaims {
     sub: string;
     iss: string;
@@ -285,3 +335,4 @@ declare class SentinelAuth {
 }
 
 export { SentinelAuth as default };
+export type { AuthCodeResponse, AuthRefreshRequest, AuthTokenRequest, AuthVerifyRequest, AuthVerifyResponse, EmailLoginRequest, EmailRegistrationRequest, ErrorResponse, JWTClaims, RefreshTokensResponse, SentinelAuthConfig, Storage, StrippedClientProvider, TokensResponse };

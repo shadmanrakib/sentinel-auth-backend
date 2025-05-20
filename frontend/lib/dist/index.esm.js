@@ -53,7 +53,7 @@ const AuthVerifyResponseSchema = z.object({
 const ProviderOptionSchema = z.object({
     id: z.string(),
     name: z.string(),
-    logo_url: z.string(),
+    logo_url: z.string().optional(),
     description: z.string()
 });
 const StrippedClientProviderSchema = z.object({
@@ -80,7 +80,7 @@ class SentinelAuth {
             throw new Error('clientId is required');
         this.baseUrl = config.baseUrl.replace(/\/$/, ''); // Remove trailing slash if present
         this.clientId = config.clientId;
-        this.redirectUri = config.redirectUri || null;
+        this.redirectUri = config.redirectUri || undefined;
         // Storage configuration
         this.storageType = config.storageType || 'localStorage';
         this.storage = this._initializeStorage(this.storageType);
