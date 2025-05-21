@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import crypto from 'crypto-js';
 
 // This file was scaffolded using Gen AI with the openapi specification as the prompt input
 /**
@@ -81,10 +82,13 @@ class SentinelAuth {
         this.refreshTimerId = null;
         this.authStateListeners = [];
         // Required config
-        if (!config.apiBaseUrl)
+        if (!config.apiBaseUrl) {
+            console.log(config, config.apiBaseUrl);
             throw new Error("baseUrl is required");
-        if (!config.clientId)
+        }
+        if (!config.clientId) {
             throw new Error("clientId is required");
+        }
         this.apiBaseUrl = config.apiBaseUrl.replace(/\/$/, ""); // Remove trailing slash if present
         this.uiBaseUrl = config.uiBaseUrl.replace(/\/$/, ""); // Remove trailing slash if present
         this.clientId = config.clientId;
@@ -197,7 +201,7 @@ class SentinelAuth {
         const currentState = this.getCurrentAuthState();
         this.authStateListeners.forEach((listener) => {
             try {
-                console.log('sub fire');
+                console.log("sub fire");
                 listener(currentState);
             }
             catch (error) {
@@ -214,7 +218,7 @@ class SentinelAuth {
         this.authStateListeners.push(listener);
         // Immediately notify the new listener of the current state
         try {
-            console.log('init fire');
+            console.log("init fire");
             listener(this.getCurrentAuthState());
         }
         catch (error) {
@@ -592,12 +596,12 @@ class SentinelAuth {
      */
     async _generateCodeChallenge(codeVerifier) {
         // Hash the code verifier using SHA-256
-        const encoder = new TextEncoder();
-        const data = encoder.encode(codeVerifier);
-        const hash = await window.crypto.subtle.digest("SHA-256", data);
-        // Convert the hash to base64url encoding
-        const hashArr = Array.from(new Uint8Array(hash)); // Convert to regular array
-        const hashStr = hashArr.map((byte) => String.fromCharCode(byte)).join("");
+        // const encoder = new TextEncoder();
+        // const data = encoder.encode(codeVerifier);
+        // const hash = await window.crypto.subtle.digest("SHA-256", data);
+        // // Convert the hash to base64url encoding
+        // const hashArr = Array.from(new Uint8Array(hash)); // Convert to regular array
+        const hashStr = crypto.SHA256(codeVerifier).toString();
         const base64 = btoa(hashStr);
         const base64url = base64
             .replace(/\+/g, "-")

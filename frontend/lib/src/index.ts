@@ -6,6 +6,7 @@
  */
 
 import { z } from "zod";
+import CryptoJS from "crypto-js";
 
 // Zod schemas for request and response validation
 const TokensResponseSchema = z.object({
@@ -164,8 +165,13 @@ class SentinelAuth {
    */
   constructor(config: SentinelAuthConfig) {
     // Required config
-    if (!config.apiBaseUrl) throw new Error("baseUrl is required");
-    if (!config.clientId) throw new Error("clientId is required");
+    if (!config.apiBaseUrl) {
+      console.log(config, config.apiBaseUrl);
+      throw new Error("baseUrl is required");
+    }
+    if (!config.clientId) {
+      throw new Error("clientId is required");
+    }
 
     this.apiBaseUrl = config.apiBaseUrl.replace(/\/$/, ""); // Remove trailing slash if present
     this.uiBaseUrl = config.uiBaseUrl.replace(/\/$/, ""); // Remove trailing slash if present
@@ -299,7 +305,7 @@ class SentinelAuth {
     const currentState = this.getCurrentAuthState();
     this.authStateListeners.forEach((listener) => {
       try {
-        console.log('sub fire');
+        console.log("sub fire");
         listener(currentState);
       } catch (error) {
         console.error("Error in auth state change listener:", error);
@@ -317,7 +323,7 @@ class SentinelAuth {
 
     // Immediately notify the new listener of the current state
     try {
-      console.log('init fire')
+      console.log("init fire");
       listener(this.getCurrentAuthState());
     } catch (error) {
       console.error("Error in initial auth state notification:", error);
@@ -792,15 +798,21 @@ class SentinelAuth {
    * @returns Code challenge string
    */
   private async _generateCodeChallenge(codeVerifier: string): Promise<string> {
-    // Hash the code verifier using SHA-256
-    const encoder = new TextEncoder();
-    const data = encoder.encode(codeVerifier);
-    const hash = await window.crypto.subtle.digest("SHA-256", data);
+    // // Hash the code verifier using SHA-256
+    // const encoder = new TextEncoder();
+    // const data = encoder.encode(codeVerifier);
+    // const hash = await window.crypto.subtle.digest("SHA-256", data);
 
-    // Convert the hash to base64url encoding
-    const hashArr = Array.from(new Uint8Array(hash)); // Convert to regular array
-    const hashStr = hashArr.map((byte) => String.fromCharCode(byte)).join("");
-    const base64 = btoa(hashStr);
+    // // Convert the hash to base64url encoding
+    // const hashArr = Array.from(new Uint8Array(hash)); // Convert to regular array
+    // const hashStr = hashArr.map((byte) => String.fromCharCode(byte)).join("");
+    // const base64 = btoa(hashStr);
+
+    // Hash the code verifier using SHA-256
+    const hash = CryptoJS.SHA256(codeVerifier);
+
+    // Convert the CryptoJS WordArray to base64
+    const base64 = hash.toString(CryptoJS.enc.Base64);
 
     const base64url = base64
       .replace(/\+/g, "-")
