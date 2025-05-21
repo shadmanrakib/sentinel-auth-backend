@@ -2,6 +2,10 @@
 
 This is the backend authentication service for the **Sentinel** project. It provides secure, scalable, and extensible user authentication and authorization functionality using OAuth2, OpenID Connect, JWTs, password hashing, and various login methods.
 
+```
+Note: The frontend directory (and their respective apps) were scaffolded using generative AI.
+```
+
 ---
 
 ## 💪 Tech Stack
