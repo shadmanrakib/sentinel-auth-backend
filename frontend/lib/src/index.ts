@@ -6,7 +6,7 @@
  */
 
 import { z } from "zod";
-import crypto from "crypto-js"
+import CryptoJS from "crypto-js";
 
 // Zod schemas for request and response validation
 const TokensResponseSchema = z.object({
@@ -166,7 +166,7 @@ class SentinelAuth {
   constructor(config: SentinelAuthConfig) {
     // Required config
     if (!config.apiBaseUrl) {
-      console.log(config, config.apiBaseUrl)
+      console.log(config, config.apiBaseUrl);
       throw new Error("baseUrl is required");
     }
     if (!config.clientId) {
@@ -798,15 +798,21 @@ class SentinelAuth {
    * @returns Code challenge string
    */
   private async _generateCodeChallenge(codeVerifier: string): Promise<string> {
-    // Hash the code verifier using SHA-256
+    // // Hash the code verifier using SHA-256
     // const encoder = new TextEncoder();
     // const data = encoder.encode(codeVerifier);
     // const hash = await window.crypto.subtle.digest("SHA-256", data);
 
     // // Convert the hash to base64url encoding
     // const hashArr = Array.from(new Uint8Array(hash)); // Convert to regular array
-    const hashStr = crypto.SHA256(codeVerifier).toString();
-    const base64 = btoa(hashStr);
+    // const hashStr = hashArr.map((byte) => String.fromCharCode(byte)).join("");
+    // const base64 = btoa(hashStr);
+
+    // Hash the code verifier using SHA-256
+    const hash = CryptoJS.SHA256(codeVerifier);
+
+    // Convert the CryptoJS WordArray to base64
+    const base64 = hash.toString(CryptoJS.enc.Base64);
 
     const base64url = base64
       .replace(/\+/g, "-")
