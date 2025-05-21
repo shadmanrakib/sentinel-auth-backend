@@ -52,7 +52,7 @@ Make sure you have Docker and Docker Compose installed.
 docker-compose up --build
 ```
 
-Access the app at [http://localhost:8080](http://localhost:8080)
+Access the app at [http://104.248.57.142:8080](http://104.248.57.142:8080)
 
 ---
 

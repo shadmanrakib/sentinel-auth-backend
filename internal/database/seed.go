@@ -25,8 +25,8 @@ func SeedDb(db *gorm.DB, appConfig config.Config) {
 		Name:   "Admin Root Client",
 		Secret: crypto.GenerateSecureSecret(),
 		// TODO: Figure out how to handle the urls for root
-		RedirectUris:   pq.StringArray{"http://localhost:3000/callback"},
-		AllowedOrigins: pq.StringArray{"http://localhost:3000"},
+		RedirectUris:   pq.StringArray{"http://104.248.57.142:3000/callback"},
+		AllowedOrigins: pq.StringArray{"http://104.248.57.142:3000"},
 		IsRootClient:   true,
 	}
 

@@ -39,10 +39,10 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
 
     if (!authRef.current) {
       const config = {
-        apiBaseUrl: process.env.NEXT_PUBLIC_SENTINEL_API_URL || 'http://localhost:8080/v1',
-        uiBaseUrl: process.env.NEXT_PUBLIC_SENTINEL_UI_URL || 'http://localhost:3000',
+        apiBaseUrl: process.env.NEXT_PUBLIC_SENTINEL_API_URL || 'http://104.248.57.142:8080/v1',
+        uiBaseUrl: process.env.NEXT_PUBLIC_SENTINEL_UI_URL || 'http://104.248.57.142:3000',
         clientId: process.env.NEXT_PUBLIC_SENTINEL_CLIENT_ID || '995b8108-a26d-4ac7-bd1e-faa5efa47e48',
-        redirectUri: process.env.NEXT_PUBLIC_SENTINEL_REDIRECT_URI || 'http://localhost:3001/auth',
+        redirectUri: process.env.NEXT_PUBLIC_SENTINEL_REDIRECT_URI || 'http://104.248.57.142:3001/auth',
         storageType: "localStorage" as const,
         autoRefresh: true,
       };
