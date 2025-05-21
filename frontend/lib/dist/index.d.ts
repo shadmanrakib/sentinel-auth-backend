@@ -48,18 +48,24 @@ declare const EmailRegistrationRequestSchema: z.ZodObject<{
     email: z.ZodString;
     password: z.ZodString;
     client_id: z.ZodString;
+    code_challenge: z.ZodString;
+    code_challenge_method: z.ZodString;
     redirect_uri: z.ZodOptional<z.ZodString>;
     metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
 }, "strip", z.ZodTypeAny, {
     email: string;
     password: string;
     client_id: string;
+    code_challenge: string;
+    code_challenge_method: string;
     redirect_uri?: string | undefined;
     metadata?: Record<string, any> | undefined;
 }, {
     email: string;
     password: string;
     client_id: string;
+    code_challenge: string;
+    code_challenge_method: string;
     redirect_uri?: string | undefined;
     metadata?: Record<string, any> | undefined;
 }>;
@@ -67,37 +73,49 @@ declare const EmailLoginRequestSchema: z.ZodObject<{
     email: z.ZodString;
     password: z.ZodString;
     client_id: z.ZodString;
+    code_challenge: z.ZodString;
+    code_challenge_method: z.ZodString;
     redirect_uri: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     email: string;
     password: string;
     client_id: string;
+    code_challenge: string;
+    code_challenge_method: string;
     redirect_uri?: string | undefined;
 }, {
     email: string;
     password: string;
     client_id: string;
+    code_challenge: string;
+    code_challenge_method: string;
     redirect_uri?: string | undefined;
 }>;
 declare const AuthTokenRequestSchema: z.ZodObject<{
     code: z.ZodString;
     client_id: z.ZodString;
+    code_verifier: z.ZodString;
 }, "strip", z.ZodTypeAny, {
     code: string;
     client_id: string;
+    code_verifier: string;
 }, {
     code: string;
     client_id: string;
+    code_verifier: string;
 }>;
 declare const AuthRefreshRequestSchema: z.ZodObject<{
     refresh_token: z.ZodString;
     client_id: z.ZodString;
+    code_verifier: z.ZodString;
 }, "strip", z.ZodTypeAny, {
     refresh_token: string;
     client_id: string;
+    code_verifier: string;
 }, {
     refresh_token: string;
     client_id: string;
+    code_verifier: string;
 }>;
 declare const AuthVerifyRequestSchema: z.ZodObject<{
     token: z.ZodString;
@@ -204,6 +222,12 @@ interface JWTClaims {
     iat: number;
     [key: string]: any;
 }
+interface AuthState {
+    isAuthenticated: boolean;
+    user: JWTClaims | null;
+    expiresAt: number | null;
+}
+type AuthStateChangeListener = (state: AuthState) => void;
 declare class SentinelAuth {
     private apiBaseUrl;
     private uiBaseUrl;
@@ -215,6 +239,7 @@ declare class SentinelAuth {
     private refreshThreshold;
     private refreshTimerId;
     private STORAGE_KEYS;
+    private authStateListeners;
     /**
      * Initializes the Sentinel Auth client
      * @param config - Configuration object
@@ -230,6 +255,22 @@ declare class SentinelAuth {
      * @private
      */
     private _setupRefreshTimer;
+    /**
+     * Get the current auth state
+     * @returns Current auth state
+     */
+    getCurrentAuthState(): AuthState;
+    /**
+     * Notify all auth state listeners of the current state
+     * @private
+     */
+    private _notifyAuthStateChange;
+    /**
+     * Add an auth state change listener
+     * @param listener - Function to call when auth state changes
+     * @returns Function to remove the listener
+     */
+    onAuthStateChange(listener: AuthStateChangeListener): () => void;
     /**
      * Make API request with proper headers and error handling
      * @private
@@ -374,4 +415,4 @@ declare class SentinelAuth {
 }
 
 export { SentinelAuth as default };
-export type { AuthCodeResponse, AuthRefreshRequest, AuthTokenRequest, AuthVerifyRequest, AuthVerifyResponse, EmailLoginRequest, EmailRegistrationRequest, ErrorResponse, JWTClaims, RefreshTokensResponse, SentinelAuthConfig, Storage, StrippedClientProvider, TokensResponse };
+export type { AuthCodeResponse, AuthRefreshRequest, AuthState, AuthStateChangeListener, AuthTokenRequest, AuthVerifyRequest, AuthVerifyResponse, EmailLoginRequest, EmailRegistrationRequest, ErrorResponse, JWTClaims, RefreshTokensResponse, SentinelAuthConfig, Storage, StrippedClientProvider, TokensResponse };

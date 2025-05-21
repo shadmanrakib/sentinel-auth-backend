@@ -2,74 +2,74 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import SentinelAuth from "sentinel-auth-client-js";
+import { useAuth } from "../context/AuthContext";
 
 export default function AuthCallbackPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState("Initializing authentication...");
   const [error, setError] = useState<string | null>(null);
+  const { auth, loading } = useAuth();
 
   useEffect(() => {
-    // Initialize SentinelAuth client
-    const sentinelAuth = new SentinelAuth({
-      apiBaseUrl: process.env.NEXT_PUBLIC_SENTINEL_API_URL!,
-      uiBaseUrl: process.env.NEXT_PUBLIC_SENTINEL_UI_URL!,
-      clientId: process.env.NEXT_PUBLIC_SENTINEL_CLIENT_ID!,
-      redirectUri: process.env.NEXT_PUBLIC_SENTINEL_REDIRECT_URI!,
-      storageType: "localStorage", // Or 'sessionStorage' based on your needs
-      autoRefresh: true,
-    });
+    if (!loading) {
+      const handleAuthentication = async () => {
+        try {
+          // Get code and state from URL search params
+          const code = searchParams.get("code") || undefined;
+          const state = searchParams.get("state") || undefined;
 
-    const handleAuthentication = async () => {
-      try {
-        // Get code and state from URL search params
-        const code = searchParams.get("code") || undefined;
-        const state = searchParams.get("state") || undefined;
+          if (!code) {
+            setStatus("No authentication code found in URL");
+            setError("Authentication failed. Please try again.");
+            return;
+          }
 
-        if (!code) {
-          setStatus("No authentication code found in URL");
-          setError("Authentication failed. Please try again.");
-          return;
+          if (!state) {
+            setStatus("No authentication state found in URL");
+            setError("Authentication failed. Please try again.");
+            return;
+          }
+
+          setStatus("Processing authentication...");
+
+          console.log({ code, state });
+
+          // Handle the authentication callback with PKCE
+          await auth.handleAuthCallbackWithPKCE({ code, state });
+
+          setStatus("Authentication successful!");
+
+          // Get user info from the token
+          const userInfo = auth.getUserInfo();
+          console.log("User authenticated:", userInfo);
+
+          // Redirect to dashboard or home page after successful authentication
+          setTimeout(() => {
+            router.push("/dashboard"); // Or wherever you want to redirect users after login
+          }, 500);
+        } catch (err) {
+          console.error("Authentication error:", err);
+          setStatus("Authentication failed");
+          const errMessage =
+            err &&
+            typeof err === "object" &&
+            "message" in err &&
+            typeof err.message === "string"
+              ? err.message
+              : null;
+          setError(errMessage || "An error occurred during authentication");
+
+          // Optionally redirect to login page after error
+          setTimeout(() => {
+            router.push("/");
+          }, 3000);
         }
+      };
 
-        setStatus("Processing authentication...");
-
-        // Handle the authentication callback with PKCE
-        await sentinelAuth.handleAuthCallbackWithPKCE({ code, state });
-
-        setStatus("Authentication successful!");
-
-        // Get user info from the token
-        const userInfo = sentinelAuth.getUserInfo();
-        console.log("User authenticated:", userInfo);
-
-        // Redirect to dashboard or home page after successful authentication
-        setTimeout(() => {
-          router.push("/dashboard"); // Or wherever you want to redirect users after login
-          router.refresh(); // Force refresh to update auth state across the app
-        }, 1500);
-      } catch (err) {
-        console.error("Authentication error:", err);
-        setStatus("Authentication failed");
-        const errMessage =
-          err &&
-          typeof err === "object" &&
-          "message" in err &&
-          typeof err.message === "string"
-            ? err.message
-            : null;
-        setError(errMessage || "An error occurred during authentication");
-
-        // Optionally redirect to login page after error
-        setTimeout(() => {
-          router.push("/");
-        }, 3000);
-      }
-    };
-
-    handleAuthentication();
-  }, [searchParams, router]); // Re-run when search params change
+      handleAuthentication();
+    }
+  }, [searchParams, router, loading, auth]); // Re-run when search params change
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">

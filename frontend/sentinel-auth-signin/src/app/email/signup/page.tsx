@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import SentinelAuth, { StrippedClientProvider } from "sentinel-auth-client-js";
+import SentinelAuth from "sentinel-auth-client-js";
 
 type SignupFormInputs = {
   email: string;
@@ -18,8 +18,6 @@ const EmailSignupPage = () => {
   const searchParams = useSearchParams();
   const searchParamsString = searchParams.toString();
 
-  const [clientId, setClientId] = useState<string | null>(null);
-  const [providers, setProviders] = useState<StrippedClientProvider[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [authInProgress, setAuthInProgress] = useState(false);
@@ -49,17 +47,12 @@ const EmailSignupPage = () => {
   // Get client ID and other params from URL on component mount
   useEffect(() => {
     const clientId = searchParams.get("client_id");
-    const redirectUri = searchParams.get("redirect_uri");
-    const state = searchParams.get("state");
-    const code_challenge = searchParams.get("code_challenge");
 
     if (!clientId) {
       setError("Missing client ID");
       setLoading(false);
       return;
     }
-
-    setClientId(clientId);
 
     if (!process.env.NEXT_PUBLIC_SENTINEL_API_URL) {
       setError("Missing auth api url");
@@ -84,8 +77,7 @@ const EmailSignupPage = () => {
   const fetchProviders = async () => {
     try {
       setLoading(true);
-      const providersData = await auth.current?.getProviders();
-      setProviders(providersData ?? []);
+      await auth.current?.getProviders();
       setLoading(false);
     } catch (err) {
       console.error("Error fetching providers:", err);
@@ -100,9 +92,18 @@ const EmailSignupPage = () => {
       setAuthInProgress(true);
       setGeneralError("");
 
+      const code_challenge = searchParams.get("code_challenge");
+      const code_challenge_method = searchParams.get("code_challenge_method");
+
+      if (!code_challenge || !code_challenge_method) {
+        throw new Error("Missing code challenge parameters");
+      }
+
       const response = await auth.current?.registerWithEmail({
         email: data.email,
         password: data.password,
+        code_challenge,
+        code_challenge_method,
       });
 
       setAuthInProgress(false);

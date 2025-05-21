@@ -30,6 +30,8 @@ const EmailRegistrationRequestSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   client_id: z.string(),
+  code_challenge: z.string(),
+  code_challenge_method: z.string(),
   redirect_uri: z.string().url().optional(),
   metadata: z.record(z.any()).optional(),
 });
@@ -38,17 +40,21 @@ const EmailLoginRequestSchema = z.object({
   email: z.string().email(),
   password: z.string(),
   client_id: z.string(),
+  code_challenge: z.string(),
+  code_challenge_method: z.string(),
   redirect_uri: z.string().url().optional(),
 });
 
 const AuthTokenRequestSchema = z.object({
   code: z.string(),
   client_id: z.string(),
+  code_verifier: z.string(),
 });
 
 const AuthRefreshRequestSchema = z.object({
   refresh_token: z.string(),
   client_id: z.string(),
+  code_verifier: z.string(),
 });
 
 const AuthVerifyRequestSchema = z.object({
@@ -126,6 +132,14 @@ export interface JWTClaims {
   [key: string]: any;
 }
 
+export interface AuthState {
+  isAuthenticated: boolean;
+  user: JWTClaims | null;
+  expiresAt: number | null;
+}
+
+export type AuthStateChangeListener = (state: AuthState) => void;
+
 class SentinelAuth {
   private apiBaseUrl: string;
   private uiBaseUrl: string;
@@ -142,6 +156,7 @@ class SentinelAuth {
     REFRESH_TOKEN: string;
     EXPIRES_AT: string;
   };
+  private authStateListeners: AuthStateChangeListener[] = [];
 
   /**
    * Initializes the Sentinel Auth client
@@ -261,6 +276,62 @@ class SentinelAuth {
   }
 
   /**
+   * Get the current auth state
+   * @returns Current auth state
+   */
+  getCurrentAuthState(): AuthState {
+    const isAuthenticated = this.isAuthenticated();
+    const user = this.getUserInfo();
+    const expiresAt = this.getTokenExpiration();
+
+    return {
+      isAuthenticated,
+      user,
+      expiresAt,
+    };
+  }
+
+  /**
+   * Notify all auth state listeners of the current state
+   * @private
+   */
+  private _notifyAuthStateChange(): void {
+    const currentState = this.getCurrentAuthState();
+    this.authStateListeners.forEach((listener) => {
+      try {
+        console.log('sub fire');
+        listener(currentState);
+      } catch (error) {
+        console.error("Error in auth state change listener:", error);
+      }
+    });
+  }
+
+  /**
+   * Add an auth state change listener
+   * @param listener - Function to call when auth state changes
+   * @returns Function to remove the listener
+   */
+  onAuthStateChange(listener: AuthStateChangeListener): () => void {
+    this.authStateListeners.push(listener);
+
+    // Immediately notify the new listener of the current state
+    try {
+      console.log('init fire')
+      listener(this.getCurrentAuthState());
+    } catch (error) {
+      console.error("Error in initial auth state notification:", error);
+    }
+
+    // Return a function to remove this listener
+    return () => {
+      this.authStateListeners = this.authStateListeners.filter(
+        (l) => l !== listener
+      );
+    };
+  }
+
+  /**
    * Make API request with proper headers and error handling
    * @private
    */
@@ -355,6 +426,8 @@ class SentinelAuth {
     if (this.autoRefresh) {
       this._setupRefreshTimer();
     }
+
+    this._notifyAuthStateChange();
   }
 
   /**
@@ -383,6 +456,8 @@ class SentinelAuth {
     const payload = EmailRegistrationRequestSchema.parse({
       email: data.email,
       password: data.password,
+      code_challenge: data.code_challenge,
+      code_challenge_method: data.code_challenge_method,
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
       metadata: data.metadata || {},
@@ -410,6 +485,8 @@ class SentinelAuth {
     const payload = EmailLoginRequestSchema.parse({
       email: data.email,
       password: data.password,
+      code_challenge: data.code_challenge,
+      code_challenge_method: data.code_challenge_method,
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
     });
@@ -430,10 +507,18 @@ class SentinelAuth {
    * @returns Token response
    */
   async exchangeCodeForTokens(code: string): Promise<TokensResponse> {
+    const state = this.storage.get("sentinel_state");
+    const codeVerifier = this.storage.get(`sentinel_code_verifier_${state}`);
+
+    if (!codeVerifier) {
+      throw new Error("Authentication code verifier missing");
+    }
+
     // Create and validate payload
     const payload = AuthTokenRequestSchema.parse({
       code,
       client_id: this.clientId,
+      code_verifier: codeVerifier,
     });
 
     const response = await this._makeRequest(
@@ -462,11 +547,19 @@ class SentinelAuth {
       throw new Error("No refresh token available");
     }
 
+    const state = this.storage.get("sentinel_state");
+    const codeVerifier = this.storage.get(`sentinel_code_verifier_${state}`);
+
+    if (!codeVerifier) {
+      throw new Error("Authentication code verifier missing");
+    }
+
     try {
       // Create and validate payload
       const payload = AuthRefreshRequestSchema.parse({
         refresh_token: refreshToken,
         client_id: this.clientId,
+        code_verifier: codeVerifier,
       });
 
       const response = await this._makeRequest(
@@ -674,6 +767,8 @@ class SentinelAuth {
 
     // Clear all tokens from storage
     this.storage.clear();
+
+    this._notifyAuthStateChange();
   }
 
   /**
@@ -703,10 +798,16 @@ class SentinelAuth {
     const hash = await window.crypto.subtle.digest("SHA-256", data);
 
     // Convert the hash to base64url encoding
-    return btoa(String.fromCharCode(...new Uint8Array(hash)))
+    const hashArr = Array.from(new Uint8Array(hash)); // Convert to regular array
+    const hashStr = hashArr.map((byte) => String.fromCharCode(byte)).join("");
+    const base64 = btoa(hashStr);
+
+    const base64url = base64
       .replace(/\+/g, "-")
       .replace(/\//g, "_")
       .replace(/=+$/, "");
+
+    return base64url;
   }
 
   /**
@@ -740,6 +841,8 @@ class SentinelAuth {
 
     // Store code verifier in storage for later use during token exchange
     this.storage.set(`sentinel_code_verifier_${state}`, codeVerifier);
+
+    console.log(codeVerifier, codeChallenge, state);
 
     // store the state as well
     this.storage.set(`sentinel_state`, state);
@@ -795,8 +898,6 @@ class SentinelAuth {
     if (state && !codeVerifier) {
       codeVerifier =
         this.storage.get(`sentinel_code_verifier_${state}`) || undefined;
-      // Clean up the stored code verifier
-      this.storage.remove(`sentinel_code_verifier_${state}`);
     }
 
     if (!codeVerifier) {
@@ -820,8 +921,6 @@ class SentinelAuth {
       },
       TokensResponseSchema
     );
-
-    this.storage.remove("sentinel_state");
 
     // Store the tokens
     this._storeTokens(response);
