@@ -11,6 +11,13 @@ export const metadata = {
 };
 
 const RootLayout: React.FC<PropsWithChildren> = ({ children }) => {
+  console.log({
+    apiBaseUrl: process.env.NEXT_PUBLIC_SENTINEL_API_URL!,
+    uiBaseUrl: process.env.NEXT_PUBLIC_SENTINEL_UI_URL!,
+    clientId: process.env.NEXT_PUBLIC_SENTINEL_CLIENT_ID!,
+    redirectUri: process.env.NEXT_PUBLIC_SENTINEL_REDIRECT_URI,
+  });
+  
   return (
     <html lang="en">
       <body className={inter.className}>
