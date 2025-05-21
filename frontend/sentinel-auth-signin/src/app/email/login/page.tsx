@@ -189,6 +189,16 @@ const EmailLoginPage = () => {
       </Head>
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
         <div className="text-center">
+        <div className="mx-auto mb-6">
+        <img 
+          src="/sentlogo.png" 
+          alt="Sentinel.ID"     //Claude AI used to help format this logo section
+          className="mx-auto" 
+          width="70" 
+          height="70" 
+          style={{ filter: "drop-shadow(0 0 7px rgba(82, 226, 255, 0.5))" }}
+        />
+      </div>
           <h2 className="mt-2 text-3xl font-extrabold text-gray-900">
             Welcome back
           </h2>

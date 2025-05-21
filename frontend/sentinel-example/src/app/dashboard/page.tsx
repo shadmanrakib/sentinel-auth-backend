@@ -12,10 +12,28 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-gray-100">
         <header className="bg-white shadow">
           <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <div className="flex items-center space-x-4">
+            {/*Claude AI help with formatting this logo section*/}
+              <img 
+                src="/sentlogo.png"   
+                alt="Sentinel.ID" 
+                width="50" 
+                height="50" 
+                className="h-10"
+                style={{ filter: "drop-shadow(0 0 7px rgba(96, 229, 255, 0.4))" }}
+              />
+              <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            </div>
             <button 
               onClick={logout}
               className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+              style={{ 
+                backgroundImage: "linear-gradient(to right, rgb(91, 7, 7), rgb(255, 122, 122))",
+                transition: "all 0.3s ease",
+                boxShadow: "0 2px 10px rgba(87, 34, 34, 0.3)"
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundImage = "linear-gradient(to right, rgb(164, 32, 32), rgb(248, 56, 56))"}
+              onMouseOut={(e) => e.currentTarget.style.backgroundImage = "linear-gradient(to right, rgb(91, 7, 7), rgb(255, 122, 122))"}
             >
               Logout
             </button>
