@@ -44,7 +44,18 @@ export default function Dashboard() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome</h1>
+        <div className="flex items-center justify-center mb-2">
+            {/* Claude AI help with logo section */}
+            <img 
+              src="/sentlogo.png" 
+              alt="Sentinel.ID" 
+              width="30" 
+              height="30"
+              className="mr-3" 
+              style={{ filter: "drop-shadow(0 0 6px rgba(94, 228, 255, 0.4))" }}
+            />
+            <h1 className="text-3xl font-bold text-gray-800">Welcome</h1>
+          </div>
           <p className="text-gray-600">Sign in to access your account</p>
         </div>
         
