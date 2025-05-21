@@ -33,6 +33,11 @@ services:
     build:
       context: ./frontend
       dockerfile: ./sentinel-auth-signin/Dockerfile.auth
+      args:
+        - NEXT_PUBLIC_SENTINEL_API_URL=${BASE_URL}:8080/v1
+        - NEXT_PUBLIC_SENTINEL_UI_URL=${BASE_URL}:3000
+        - NEXT_PUBLIC_SENTINEL_CLIENT_ID=995b8108-a26d-4ac7-bd1e-faa5efa47e48
+        - NEXT_PUBLIC_SENTINEL_REDIRECT_URI=${BASE_URL}:3001/auth
     ports:
       - "3000:3000"
     volumes:
@@ -52,6 +57,11 @@ services:
     build:
       context: ./frontend
       dockerfile: ./sentinel-example/Dockerfile.example
+      args:
+        - NEXT_PUBLIC_SENTINEL_API_URL=${BASE_URL}:8080/v1
+        - NEXT_PUBLIC_SENTINEL_UI_URL=${BASE_URL}:3000
+        - NEXT_PUBLIC_SENTINEL_CLIENT_ID=995b8108-a26d-4ac7-bd1e-faa5efa47e48
+        - NEXT_PUBLIC_SENTINEL_REDIRECT_URI=${BASE_URL}:3001/auth
     ports:
       - "3001:3001"
     volumes:
