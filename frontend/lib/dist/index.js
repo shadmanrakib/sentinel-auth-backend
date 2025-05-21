@@ -83,10 +83,13 @@ class SentinelAuth {
         this.refreshTimerId = null;
         this.authStateListeners = [];
         // Required config
-        if (!config.apiBaseUrl)
+        if (!config.apiBaseUrl) {
+            console.log(config, config.apiBaseUrl);
             throw new Error("baseUrl is required");
-        if (!config.clientId)
+        }
+        if (!config.clientId) {
             throw new Error("clientId is required");
+        }
         this.apiBaseUrl = config.apiBaseUrl.replace(/\/$/, ""); // Remove trailing slash if present
         this.uiBaseUrl = config.uiBaseUrl.replace(/\/$/, ""); // Remove trailing slash if present
         this.clientId = config.clientId;
@@ -199,7 +202,7 @@ class SentinelAuth {
         const currentState = this.getCurrentAuthState();
         this.authStateListeners.forEach((listener) => {
             try {
-                console.log('sub fire');
+                console.log("sub fire");
                 listener(currentState);
             }
             catch (error) {
@@ -216,7 +219,7 @@ class SentinelAuth {
         this.authStateListeners.push(listener);
         // Immediately notify the new listener of the current state
         try {
-            console.log('init fire');
+            console.log("init fire");
             listener(this.getCurrentAuthState());
         }
         catch (error) {
