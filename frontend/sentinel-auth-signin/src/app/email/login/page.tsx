@@ -3,7 +3,7 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import SentinelAuth from "sentinel-auth-client-js";
 
@@ -16,8 +16,6 @@ const EmailLoginPage = () => {
   const searchParams = useSearchParams();
   const searchParamsString = searchParams.toString();
 
-  // const [clientId, setClientId] = useState<string | null>(null);
-  // const [providers, setProviders] = useState<StrippedClientProvider[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [authInProgress, setAuthInProgress] = useState(false);
@@ -90,7 +88,7 @@ const EmailLoginPage = () => {
       const code_challenge_method = searchParams.get("code_challenge_method");
 
       if (!code_challenge || !code_challenge_method) {
-        throw new Error('Missing code challenge parameters');
+        throw new Error("Missing code challenge parameters");
       }
 
       const response = await auth.current?.loginWithEmail({
@@ -382,4 +380,14 @@ const EmailLoginPage = () => {
   );
 };
 
-export default EmailLoginPage;
+const Page = () => {
+  return (
+    <Suspense
+      fallback={<div className="p-4 text-center">Loading...</div>}
+    >
+      <EmailLoginPage />
+    </Suspense>
+  );
+};
+
+export default Page;

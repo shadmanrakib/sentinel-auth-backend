@@ -3,7 +3,7 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import SentinelAuth from "sentinel-auth-client-js";
 
@@ -487,4 +487,14 @@ const EmailSignupPage = () => {
   );
 };
 
-export default EmailSignupPage;
+const Page = () => {
+  return (
+    <Suspense
+      fallback={<div className="p-4 text-center">Loading...</div>}
+    >
+      <EmailSignupPage />
+    </Suspense>
+  );
+};
+
+export default Page;

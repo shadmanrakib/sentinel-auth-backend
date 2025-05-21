@@ -1,0 +1,24 @@
+# Assuming Docker context is the repo root
+
+FROM node:22-alpine
+
+WORKDIR /app
+
+# ---- Build shared library ----
+WORKDIR /app/lib
+COPY lib/package*.json ./
+RUN npm install
+COPY lib .
+RUN npm run build
+RUN npm link
+
+# ---- Build sentinel-auth-signin app ----
+WORKDIR /app/sentinel-auth-signin
+COPY sentinel-auth-signin/package*.json ./
+RUN npm install
+RUN npm link sentinel-auth-client-js
+COPY sentinel-auth-signin .
+RUN npm run build
+
+EXPOSE 3000
+CMD ["npm", "run", "start"]

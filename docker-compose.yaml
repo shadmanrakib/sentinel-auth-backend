@@ -21,15 +21,26 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # auth-client-lib:
+  #   build:
+  #     context: ./frontend/lib
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./frontend/lib:/app
+  #   environment:
+  #     - NODE_ENV=development
+  #   command: npm run build
+
   auth-frontend:
     build:
-      context: ./frontend/sentinel-auth-signin
-      dockerfile: Dockerfile
+      context: ./frontend
+      dockerfile: ./sentinel-auth-signin/Dockerfile.auth
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend/sentinel-auth-signin:/app
-      - /app/node_modules
+      - ./frontend/sentinel-auth-signin:/app/frontend/sentinel-auth-signin
+      - ./frontend/lib:/app/frontend/lib
+      - /app/frontend/sentinel-auth-signin/node_modules
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_SENTINEL_API_URL=http://localhost:8080/v1
@@ -42,13 +53,14 @@ services:
 
   example-frontend:
     build:
-      context: ./frontend/sentinel-example
-      dockerfile: Dockerfile
+      context: ./frontend
+      dockerfile: ./sentinel-example/Dockerfile.example
     ports:
-      - "3001:3000"
+      - "3001:3001"
     volumes:
-      - ./frontend/sentinel-example:/app
-      - /app/node_modules
+      - ./frontend/sentinel-example:/app/frontend/sentinel-example
+      - ./frontend/lib:/app/frontend/lib
+      - /app/frontend/sentinel-example/node_modules
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_SENTINEL_API_URL=http://localhost:8080/v1

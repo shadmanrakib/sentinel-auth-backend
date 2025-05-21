@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Head from "next/head";
 import SentinelAuth, { StrippedClientProvider } from "sentinel-auth-client-js"; // Adjust the import path as needed
 
-export default function SignIn() {
+function SignIn() {
   const searchParams = useSearchParams();
 
-  const [clientId, setClientId] = useState<string | null>(null);
   const [providers, setProviders] = useState<StrippedClientProvider[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -18,17 +17,12 @@ export default function SignIn() {
   // Get client ID and other params from URL on component mount
   useEffect(() => {
     const clientId = searchParams.get("client_id");
-    const redirectUri = searchParams.get("redirect_uri");
-    const state = searchParams.get("state");
-    const code_challenge = searchParams.get("code_challenge");
 
     if (!clientId) {
       setError("Missing client ID");
       setLoading(false);
       return;
     }
-
-    setClientId(clientId);
 
     if (!process.env.NEXT_PUBLIC_SENTINEL_API_URL) {
       setError("Missing auth api url");
@@ -169,3 +163,13 @@ export default function SignIn() {
     </div>
   );
 }
+
+const Page = () => {
+  return (
+    <Suspense>
+      <SignIn />
+    </Suspense>
+  );
+};
+
+export default Page;
