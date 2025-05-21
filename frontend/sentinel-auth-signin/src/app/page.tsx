@@ -138,7 +138,7 @@ function SignIn() {
                 </span>
               </a>
               <a
-                href={`/email/login?${searchParams.toString()}`}
+                href={`/email/signup?${searchParams.toString()}`}
                 className="border rounded-2xl px-6 py-4 flex gap-4 items-center"
               >
                 <img
