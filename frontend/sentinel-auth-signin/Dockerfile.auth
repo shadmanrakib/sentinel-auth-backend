@@ -21,12 +21,13 @@ RUN npm link sentinel-auth-client-js
 COPY sentinel-auth-signin/.env* ./
 
 COPY sentinel-auth-signin .
-RUN npm run build
-
-EXPOSE 3000
 
 COPY sentinel-auth-signin/docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
+
+RUN npm run build
+
+EXPOSE 3000
 
 CMD ["npm", "run", "start"]
