@@ -13,7 +13,7 @@ export default function DashboardPage() {
         <header className="bg-white shadow">
           <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <div className="flex items-center space-x-4">
-            {/*Claude AI help with formatting this logo section*/}
+            {/*Claude AI help with formatting this logo section and Logout button*/}
               <img 
                 src="/sentlogo.png"   
                 alt="Sentinel.ID" 
