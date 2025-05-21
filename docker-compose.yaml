@@ -34,8 +34,8 @@ services:
       context: ./frontend
       dockerfile: ./sentinel-auth-signin/Dockerfile.auth
       args:
-        - NEXT_PUBLIC_SENTINEL_API_URL=http://104.248.57.142:8080/v1
-        - NEXT_PUBLIC_SENTINEL_UI_URL=http://104.248.57.142:3000
+        - NEXT_PUBLIC_SENTINEL_API_URL=http://localhost:8080/v1
+        - NEXT_PUBLIC_SENTINEL_UI_URL=http://localhost:3000
         - NEXT_PUBLIC_SENTINEL_CLIENT_ID=995b8108-a26d-4ac7-bd1e-faa5efa47e48
         - NEXT_PUBLIC_SENTINEL_REDIRECT_URI=http://localhost:3000/auth
     ports:
@@ -45,8 +45,8 @@ services:
       - ./frontend/lib:/app/frontend/lib
       - /app/frontend/sentinel-auth-signin/node_modules
     environment:
-      - NEXT_PUBLIC_SENTINEL_API_URL=http://104.248.57.142:8080/v1
-      - NEXT_PUBLIC_SENTINEL_UI_URL=http://104.248.57.142:3000
+      - NEXT_PUBLIC_SENTINEL_API_URL=http://localhost:8080/v1
+      - NEXT_PUBLIC_SENTINEL_UI_URL=http://localhost:3000
       - NEXT_PUBLIC_SENTINEL_CLIENT_ID=995b8108-a26d-4ac7-bd1e-faa5efa47e48
       - NEXT_PUBLIC_SENTINEL_REDIRECT_URI=http://localhost:3000/auth
     depends_on:
@@ -58,8 +58,8 @@ services:
       context: ./frontend
       dockerfile: ./sentinel-example/Dockerfile.example
       args:
-        - NEXT_PUBLIC_SENTINEL_API_URL=http://104.248.57.142:8080/v1
-        - NEXT_PUBLIC_SENTINEL_UI_URL=http://104.248.57.142:3000
+        - NEXT_PUBLIC_SENTINEL_API_URL=http://localhost:8080/v1
+        - NEXT_PUBLIC_SENTINEL_UI_URL=http://localhost:3000
         - NEXT_PUBLIC_SENTINEL_CLIENT_ID=995b8108-a26d-4ac7-bd1e-faa5efa47e48
         - NEXT_PUBLIC_SENTINEL_REDIRECT_URI=http://localhost:3000/auth
     ports:
@@ -69,8 +69,8 @@ services:
       - ./frontend/lib:/app/frontend/lib
       - /app/frontend/sentinel-example/node_modules
     environment:
-      - NEXT_PUBLIC_SENTINEL_API_URL=http://104.248.57.142:8080/v1
-      - NEXT_PUBLIC_SENTINEL_UI_URL=http://104.248.57.142:3000
+      - NEXT_PUBLIC_SENTINEL_API_URL=http://localhost:8080/v1
+      - NEXT_PUBLIC_SENTINEL_UI_URL=http://localhost:3000
       - NEXT_PUBLIC_SENTINEL_CLIENT_ID=995b8108-a26d-4ac7-bd1e-faa5efa47e48
       - NEXT_PUBLIC_SENTINEL_REDIRECT_URI=http://localhost:3000/auth
     depends_on:
