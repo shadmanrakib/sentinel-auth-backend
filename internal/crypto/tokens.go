@@ -122,6 +122,8 @@ func CreateRefreshToken(
 	authTime int64,
 	tokenDurationInSeconds int,
 	identity *models.Identity,
+	codeChallenge string,
+	codeChallengeMethod string,
 ) (string, error) {
 	expiresAtTimestamp := authTime + int64(tokenDurationInSeconds)
 	expiresAt := time.Unix(expiresAtTimestamp, 0)
@@ -130,15 +132,17 @@ func CreateRefreshToken(
 	token := fmt.Sprintf("RT_%s", random)
 
 	rf := models.RefreshToken{
-		ClientId:         identity.ClientId,
-		ProviderSub:      identity.ProviderSub,
-		ProviderOptionId: identity.ProviderOptionId,
-		ClientProviderId: identity.ClientProviderId,
-		IdentityId:       identity.ID,
-		UserId:           identity.UserId,
-		Token:            token,
-		Revoked:          false,
-		ExpiresAt:        expiresAt,
+		ClientId:            identity.ClientId,
+		ProviderSub:         identity.ProviderSub,
+		ProviderOptionId:    identity.ProviderOptionId,
+		ClientProviderId:    identity.ClientProviderId,
+		IdentityId:          identity.ID,
+		UserId:              identity.UserId,
+		Token:               token,
+		Revoked:             false,
+		ExpiresAt:           expiresAt,
+		CodeChallenge:       codeChallenge,
+		CodeChallengeMethod: codeChallengeMethod,
 	}
 
 	db.Create(&rf)

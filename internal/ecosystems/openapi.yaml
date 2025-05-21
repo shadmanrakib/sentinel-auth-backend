@@ -180,12 +180,17 @@ components:
       required:
         - code
         - client_id
+        - code_verifier
       properties:
         code:
           type: string
           description: Auth code returned from sign in and sign up methods for sentinel tokens
         client_id:
           type: string
+        code_verifier:
+          type: string
+          description: Original code verifier used to generate the code challenge
+        
     AuthTokenTokensResponse:
       type: object
       required:
@@ -209,12 +214,17 @@ components:
       required:
         - refresh_token
         - client_id
+        - code_verifier
       properties:
         refresh_token:
           type: string
           description: A refresh token issued for the client_id
         client_id:
           type: string
+        code_verifier:
+          type: string
+          description: Original code verifier used to generate the code challenge
+
     AuthRefreshTokensResponse:
       type: object
       required:
@@ -258,6 +268,8 @@ components:
         - email
         - password
         - client_id
+        - code_challenge
+        - code_challenge_method
       properties:
         email:
           type: string
@@ -274,6 +286,13 @@ components:
           type: string
           format: uri
           description: URI to redirect after authentication
+        state:
+          type: string
+        code_challenge:
+          type: string
+        code_challenge_method:
+          type: string
+          enum: [S256]
         metadata:
           type: object
           description: Additional registration metadata
@@ -284,6 +303,8 @@ components:
         - email
         - password
         - client_id
+        - code_challenge
+        - code_challenge_method
       properties:
         email:
           type: string
@@ -300,7 +321,14 @@ components:
           type: string
           format: uri
           description: URI to redirect after authentication
-          
+        state:
+          type: string
+        code_challenge:
+          type: string
+        code_challenge_method:
+          type: string
+          enum: [S256]
+
     AuthCodeResponse:
       type: object
       required:
@@ -314,6 +342,8 @@ components:
           type: integer
           description: Code expiration time in seconds
           default: 600
+        state:
+          type: string
   
     ErrorResponse:
       type: object

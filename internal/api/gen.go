@@ -12,18 +12,32 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+// Defines values for EmailLoginRequestCodeChallengeMethod.
+const (
+	EmailLoginRequestCodeChallengeMethodS256 EmailLoginRequestCodeChallengeMethod = "S256"
+)
+
+// Defines values for EmailRegistrationRequestCodeChallengeMethod.
+const (
+	EmailRegistrationRequestCodeChallengeMethodS256 EmailRegistrationRequestCodeChallengeMethod = "S256"
+)
+
 // AuthCodeResponse defines model for AuthCodeResponse.
 type AuthCodeResponse struct {
 	// Code Authentication code to be exchanged for tokens
 	Code string `json:"code"`
 
 	// ExpiresIn Code expiration time in seconds
-	ExpiresIn int `json:"expires_in"`
+	ExpiresIn int     `json:"expires_in"`
+	State     *string `json:"state,omitempty"`
 }
 
 // AuthRefreshRequest defines model for AuthRefreshRequest.
 type AuthRefreshRequest struct {
 	ClientId string `json:"client_id"`
+
+	// CodeVerifier Original code verifier used to generate the code challenge
+	CodeVerifier string `json:"code_verifier"`
 
 	// RefreshToken A refresh token issued for the client_id
 	RefreshToken string `json:"refresh_token"`
@@ -42,6 +56,9 @@ type AuthTokenRequest struct {
 
 	// Code Auth code returned from sign in and sign up methods for sentinel tokens
 	Code string `json:"code"`
+
+	// CodeVerifier Original code verifier used to generate the code challenge
+	CodeVerifier string `json:"code_verifier"`
 }
 
 // AuthTokenTokensResponse defines model for AuthTokenTokensResponse.
@@ -70,7 +87,9 @@ type AuthVerifyResponse struct {
 // EmailLoginRequest defines model for EmailLoginRequest.
 type EmailLoginRequest struct {
 	// ClientId Client application ID
-	ClientId string `json:"client_id"`
+	ClientId            string                               `json:"client_id"`
+	CodeChallenge       string                               `json:"code_challenge"`
+	CodeChallengeMethod EmailLoginRequestCodeChallengeMethod `json:"code_challenge_method"`
 
 	// Email User's email address
 	Email openapi_types.Email `json:"email"`
@@ -80,12 +99,18 @@ type EmailLoginRequest struct {
 
 	// RedirectUri URI to redirect after authentication
 	RedirectUri *string `json:"redirect_uri,omitempty"`
+	State       *string `json:"state,omitempty"`
 }
+
+// EmailLoginRequestCodeChallengeMethod defines model for EmailLoginRequest.CodeChallengeMethod.
+type EmailLoginRequestCodeChallengeMethod string
 
 // EmailRegistrationRequest defines model for EmailRegistrationRequest.
 type EmailRegistrationRequest struct {
 	// ClientId Client application ID
-	ClientId string `json:"client_id"`
+	ClientId            string                                      `json:"client_id"`
+	CodeChallenge       string                                      `json:"code_challenge"`
+	CodeChallengeMethod EmailRegistrationRequestCodeChallengeMethod `json:"code_challenge_method"`
 
 	// Email User's email address
 	Email openapi_types.Email `json:"email"`
@@ -98,7 +123,11 @@ type EmailRegistrationRequest struct {
 
 	// RedirectUri URI to redirect after authentication
 	RedirectUri *string `json:"redirect_uri,omitempty"`
+	State       *string `json:"state,omitempty"`
 }
+
+// EmailRegistrationRequestCodeChallengeMethod defines model for EmailRegistrationRequest.CodeChallengeMethod.
+type EmailRegistrationRequestCodeChallengeMethod string
 
 // ErrorResponse defines model for ErrorResponse.
 type ErrorResponse struct {

@@ -32,7 +32,7 @@ func getRefreshTokenByToken(db *gorm.DB, token string) (*models.RefreshToken, er
 	return &rf, nil
 }
 
-func RefreshTokensWithRefreshToken(db *gorm.DB, clientId string, token string) (*RefreshedTokens, error) {
+func RefreshTokensWithRefreshToken(db *gorm.DB, clientId string, token string, codeVerifier string) (*RefreshedTokens, error) {
 	rf, err := getRefreshTokenByToken(db, token)
 	if err != nil || rf.ClientId != clientId {
 		return nil, errors.New(string(RefreshTokensWithRefreshTokenErrorInvalidToken))
@@ -42,6 +42,10 @@ func RefreshTokensWithRefreshToken(db *gorm.DB, clientId string, token string) (
 	hasExpired := rf.ExpiresAt.Unix() <= now.Unix()
 	if hasExpired || rf.Revoked {
 		return nil, errors.New(string(RefreshTokensWithRefreshTokenErrorInvalidToken))
+	}
+
+	if !passesCodeChallenge(rf.CodeChallenge, rf.CodeChallengeMethod, codeVerifier) {
+		return nil, errors.New(string(RedeemAuthCodeErrorCodeChallengeFailed))
 	}
 
 	shortTokenDurationSeconds := 60 * 60 * 1

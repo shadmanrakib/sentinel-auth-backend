@@ -21,7 +21,7 @@ func MakePostAuthRefreshHandler(db *gorm.DB) func(*gin.Context) {
 			return
 		}
 
-		tokens, err := auth.RefreshTokensWithRefreshToken(db, req.ClientId, req.RefreshToken)
+		tokens, err := auth.RefreshTokensWithRefreshToken(db, req.ClientId, req.RefreshToken, req.CodeVerifier)
 
 		// handle errors in creating user
 		if err != nil {

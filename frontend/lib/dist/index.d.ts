@@ -182,10 +182,11 @@ type AuthVerifyResponse = z.infer<typeof AuthVerifyResponseSchema>;
 type StrippedClientProvider = z.infer<typeof StrippedClientProviderSchema>;
 type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
 type SentinelAuthConfig = {
-    baseUrl: string;
+    apiBaseUrl: string;
+    uiBaseUrl: string;
     clientId: string;
     redirectUri?: string;
-    storageType?: 'localStorage' | 'sessionStorage' | 'memory';
+    storageType?: "localStorage" | "sessionStorage" | "memory";
     autoRefresh?: boolean;
     refreshThreshold?: number;
 };
@@ -204,7 +205,8 @@ interface JWTClaims {
     [key: string]: any;
 }
 declare class SentinelAuth {
-    private baseUrl;
+    private apiBaseUrl;
+    private uiBaseUrl;
     private clientId;
     private redirectUri;
     private storageType;
@@ -248,7 +250,7 @@ declare class SentinelAuth {
      * @param data - Registration data
      * @returns Auth code response
      */
-    registerWithEmail(data: Omit<EmailRegistrationRequest, 'client_id' | 'redirect_uri'> & {
+    registerWithEmail(data: Omit<EmailRegistrationRequest, "client_id" | "redirect_uri"> & {
         metadata?: Record<string, any>;
     }): Promise<AuthCodeResponse>;
     /**
@@ -256,7 +258,7 @@ declare class SentinelAuth {
      * @param data - Login credentials
      * @returns Auth code response
      */
-    loginWithEmail(data: Omit<EmailLoginRequest, 'client_id' | 'redirect_uri'>): Promise<AuthCodeResponse>;
+    loginWithEmail(data: Omit<EmailLoginRequest, "client_id" | "redirect_uri">): Promise<AuthCodeResponse>;
     /**
      * Exchange auth code for tokens and store them
      * @param code - Auth code from login or registration
@@ -332,6 +334,43 @@ declare class SentinelAuth {
      * Logout the user by clearing tokens and canceling refresh timer
      */
     logout(): void;
+    /**
+     * Generates a random string for state or code verifier
+     * @param length - Length of the random string
+     * @returns Random string
+     */
+    private _generateRandomString;
+    /**
+     * Generates a code challenge from a code verifier
+     * @param codeVerifier - The code verifier string
+     * @returns Code challenge string
+     */
+    private _generateCodeChallenge;
+    /**
+     * Generate authentication URL for a provider with PKCE parameters
+     * @param providerId - ID of the authentication provider
+     * @param options - Additional options
+     * @returns Generated auth URL and PKCE data
+     */
+    generateAuthUrl(options?: {
+        redirectUri?: string;
+        state?: string;
+        codeVerifier?: string;
+    }): Promise<{
+        url: string;
+        state: string;
+        codeVerifier: string;
+    }>;
+    /**
+     * Handle authentication callback with PKCE support
+     * @param options - Callback options
+     * @returns Token response
+     */
+    handleAuthCallbackWithPKCE(options?: {
+        code?: string;
+        state?: string;
+        codeVerifier?: string;
+    }): Promise<TokensResponse>;
 }
 
 export { SentinelAuth as default };

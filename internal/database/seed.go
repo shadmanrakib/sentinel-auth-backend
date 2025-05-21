@@ -32,10 +32,13 @@ func SeedDb(db *gorm.DB) {
 		log.Fatal("❌ Failed to create root client:", err)
 	}
 
+	emailLogoUrl := "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLW1haWwtaWNvbiBsdWNpZGUtbWFpbCI+PHBhdGggZD0ibTIyIDctOC45OTEgNS43MjdhMiAyIDAgMCAxLTIuMDA5IDBMMiA3Ii8+PHJlY3QgeD0iMiIgeT0iNCIgd2lkdGg9IjIwIiBoZWlnaHQ9IjE2IiByeD0iMiIvPjwvc3ZnPg=="
+
 	emailProvider := models.ProviderOption{
 		ID:          "email",
-		Name:        "Email Authentication",
+		Name:        "Email",
 		Description: "Authenticate users using email and password",
+		LogoUrl:     &emailLogoUrl,
 		Mappings:    map[string]interface{}{},
 	}
 
@@ -53,4 +56,6 @@ func SeedDb(db *gorm.DB) {
 	if err := db.Create(&clientProvider).Error; err != nil {
 		log.Fatal("❌ Failed to create client provider association:", err)
 	}
+
+	log.Println("Root client id", clientProvider.ClientId)
 }

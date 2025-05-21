@@ -10,61 +10,61 @@ const TokensResponseSchema = z.object({
     access_token: z.string(),
     id_token: z.string(),
     refresh_token: z.string(),
-    expires_in: z.number()
+    expires_in: z.number(),
 });
 const RefreshTokensResponseSchema = z.object({
     access_token: z.string(),
     id_token: z.string(),
-    expires_in: z.number()
+    expires_in: z.number(),
 });
 const AuthCodeResponseSchema = z.object({
     code: z.string(),
-    expires_in: z.number()
+    expires_in: z.number(),
 });
 const EmailRegistrationRequestSchema = z.object({
     email: z.string().email(),
     password: z.string().min(8),
     client_id: z.string(),
     redirect_uri: z.string().url().optional(),
-    metadata: z.record(z.any()).optional()
+    metadata: z.record(z.any()).optional(),
 });
 const EmailLoginRequestSchema = z.object({
     email: z.string().email(),
     password: z.string(),
     client_id: z.string(),
-    redirect_uri: z.string().url().optional()
+    redirect_uri: z.string().url().optional(),
 });
 const AuthTokenRequestSchema = z.object({
     code: z.string(),
-    client_id: z.string()
+    client_id: z.string(),
 });
 const AuthRefreshRequestSchema = z.object({
     refresh_token: z.string(),
-    client_id: z.string()
+    client_id: z.string(),
 });
 const AuthVerifyRequestSchema = z.object({
     token: z.string(),
-    client_id: z.string()
+    client_id: z.string(),
 });
 const AuthVerifyResponseSchema = z.object({
     valid: z.boolean(),
-    claims: z.record(z.any())
+    claims: z.record(z.any()),
 });
 const ProviderOptionSchema = z.object({
     id: z.string(),
     name: z.string(),
     logo_url: z.string().optional(),
-    description: z.string()
+    description: z.string(),
 });
 const StrippedClientProviderSchema = z.object({
     id: z.string(),
     client_id: z.string(),
     provider_option: ProviderOptionSchema,
-    data: z.record(z.any()).nullable().optional()
+    data: z.record(z.any()).nullable().optional(),
 });
 const ErrorResponseSchema = z.object({
     error: z.string(),
-    error_description: z.string()
+    error_description: z.string(),
 });
 class SentinelAuth {
     /**
@@ -74,15 +74,16 @@ class SentinelAuth {
     constructor(config) {
         this.refreshTimerId = null;
         // Required config
-        if (!config.baseUrl)
-            throw new Error('baseUrl is required');
+        if (!config.apiBaseUrl)
+            throw new Error("baseUrl is required");
         if (!config.clientId)
-            throw new Error('clientId is required');
-        this.baseUrl = config.baseUrl.replace(/\/$/, ''); // Remove trailing slash if present
+            throw new Error("clientId is required");
+        this.apiBaseUrl = config.apiBaseUrl.replace(/\/$/, ""); // Remove trailing slash if present
+        this.uiBaseUrl = config.uiBaseUrl.replace(/\/$/, ""); // Remove trailing slash if present
         this.clientId = config.clientId;
         this.redirectUri = config.redirectUri || undefined;
         // Storage configuration
-        this.storageType = config.storageType || 'localStorage';
+        this.storageType = config.storageType || "localStorage";
         this.storage = this._initializeStorage(this.storageType);
         // Token refresh configuration
         this.autoRefresh = config.autoRefresh !== false;
@@ -92,7 +93,7 @@ class SentinelAuth {
             ACCESS_TOKEN: `sentinel_access_token_${this.clientId}`,
             ID_TOKEN: `sentinel_id_token_${this.clientId}`,
             REFRESH_TOKEN: `sentinel_refresh_token_${this.clientId}`,
-            EXPIRES_AT: `sentinel_expires_at_${this.clientId}`
+            EXPIRES_AT: `sentinel_expires_at_${this.clientId}`,
         };
         // Initialize refresh timer if needed
         if (this.autoRefresh && this.isAuthenticated()) {
@@ -105,33 +106,39 @@ class SentinelAuth {
      */
     _initializeStorage(type) {
         switch (type) {
-            case 'localStorage':
+            case "localStorage":
                 return {
                     get: (key) => localStorage.getItem(key),
                     set: (key, value) => localStorage.setItem(key, value),
                     remove: (key) => localStorage.removeItem(key),
                     clear: () => {
-                        Object.values(this.STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
-                    }
+                        Object.values(this.STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
+                    },
                 };
-            case 'sessionStorage':
+            case "sessionStorage":
                 return {
                     get: (key) => sessionStorage.getItem(key),
                     set: (key, value) => sessionStorage.setItem(key, value),
                     remove: (key) => sessionStorage.removeItem(key),
                     clear: () => {
-                        Object.values(this.STORAGE_KEYS).forEach(key => sessionStorage.removeItem(key));
-                    }
+                        Object.values(this.STORAGE_KEYS).forEach((key) => sessionStorage.removeItem(key));
+                    },
                 };
-            case 'memory':
+            case "memory":
                 const memoryStorage = {};
                 return {
                     get: (key) => memoryStorage[key] || null,
-                    set: (key, value) => { memoryStorage[key] = value; },
-                    remove: (key) => { delete memoryStorage[key]; },
+                    set: (key, value) => {
+                        memoryStorage[key] = value;
+                    },
+                    remove: (key) => {
+                        delete memoryStorage[key];
+                    },
                     clear: () => {
-                        Object.values(this.STORAGE_KEYS).forEach(key => { delete memoryStorage[key]; });
-                    }
+                        Object.values(this.STORAGE_KEYS).forEach((key) => {
+                            delete memoryStorage[key];
+                        });
+                    },
                 };
             default:
                 throw new Error(`Unsupported storage type: ${type}`);
@@ -150,14 +157,14 @@ class SentinelAuth {
         const timeUntilRefresh = expiresAt - now - this.refreshThreshold;
         if (timeUntilRefresh <= 0) {
             // Token is already expired or will expire soon, refresh now
-            this.refreshTokens().catch(err => console.error('Failed to refresh tokens:', err));
+            this.refreshTokens().catch((err) => console.error("Failed to refresh tokens:", err));
         }
         else {
             // Set timer to refresh before expiration
             if (this.refreshTimerId)
                 window.clearTimeout(this.refreshTimerId);
             this.refreshTimerId = window.setTimeout(() => {
-                this.refreshTokens().catch(err => console.error('Failed to refresh tokens:', err));
+                this.refreshTokens().catch((err) => console.error("Failed to refresh tokens:", err));
             }, timeUntilRefresh * 1000);
         }
     }
@@ -166,10 +173,10 @@ class SentinelAuth {
      * @private
      */
     async _makeRequest(endpoint, options = {}, responseSchema) {
-        const url = `${this.baseUrl}${endpoint}`;
+        const url = `${this.apiBaseUrl}${endpoint}`;
         const defaultOptions = {
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
         };
         const mergedOptions = {
@@ -177,10 +184,12 @@ class SentinelAuth {
             ...options,
             headers: {
                 ...defaultOptions.headers,
-                ...options.headers
-            }
+                ...options.headers,
+            },
         };
-        if (mergedOptions.body && typeof mergedOptions.body === 'object' && !(mergedOptions.body instanceof FormData)) {
+        if (mergedOptions.body &&
+            typeof mergedOptions.body === "object" &&
+            !(mergedOptions.body instanceof FormData)) {
             mergedOptions.body = JSON.stringify(mergedOptions.body);
         }
         try {
@@ -206,20 +215,20 @@ class SentinelAuth {
             }
             catch (e) {
                 if (e instanceof z.ZodError) {
-                    console.error('API response validation error:', e.errors);
-                    throw new Error('Invalid response from server');
+                    console.error("API response validation error:", e.errors);
+                    throw new Error("Invalid response from server");
                 }
                 throw e;
             }
         }
         catch (error) {
             if (error instanceof Error) {
-                if (error.message === 'Failed to fetch') {
-                    throw new Error('Network error. Please check your connection.');
+                if (error.message === "Failed to fetch") {
+                    throw new Error("Network error. Please check your connection.");
                 }
                 throw error;
             }
-            throw new Error('Unknown error occurred');
+            throw new Error("Unknown error occurred");
         }
     }
     /**
@@ -247,7 +256,7 @@ class SentinelAuth {
      * @returns List of available providers
      */
     async getProviders() {
-        return this._makeRequest(`/auth/providers?client_id=${encodeURIComponent(this.clientId)}`, { method: 'GET' }, z.array(StrippedClientProviderSchema));
+        return this._makeRequest(`/auth/providers?client_id=${encodeURIComponent(this.clientId)}`, { method: "GET" }, z.array(StrippedClientProviderSchema));
     }
     /**
      * Register a new user with email and password
@@ -261,11 +270,11 @@ class SentinelAuth {
             password: data.password,
             client_id: this.clientId,
             redirect_uri: this.redirectUri,
-            metadata: data.metadata || {}
+            metadata: data.metadata || {},
         });
-        return this._makeRequest('/auth/providers/email/register', {
-            method: 'POST',
-            body: JSON.stringify(payload)
+        return this._makeRequest("/auth/providers/email/register", {
+            method: "POST",
+            body: JSON.stringify(payload),
         }, AuthCodeResponseSchema);
     }
     /**
@@ -279,11 +288,11 @@ class SentinelAuth {
             email: data.email,
             password: data.password,
             client_id: this.clientId,
-            redirect_uri: this.redirectUri
+            redirect_uri: this.redirectUri,
         });
-        return this._makeRequest('/auth/providers/email/login', {
-            method: 'POST',
-            body: JSON.stringify(payload)
+        return this._makeRequest("/auth/providers/email/login", {
+            method: "POST",
+            body: JSON.stringify(payload),
         }, AuthCodeResponseSchema);
     }
     /**
@@ -295,11 +304,11 @@ class SentinelAuth {
         // Create and validate payload
         const payload = AuthTokenRequestSchema.parse({
             code,
-            client_id: this.clientId
+            client_id: this.clientId,
         });
-        const response = await this._makeRequest('/auth/token', {
-            method: 'POST',
-            body: JSON.stringify(payload)
+        const response = await this._makeRequest("/auth/token", {
+            method: "POST",
+            body: JSON.stringify(payload),
         }, TokensResponseSchema);
         // Store the tokens
         this._storeTokens(response);
@@ -312,29 +321,29 @@ class SentinelAuth {
     async refreshTokens() {
         const refreshToken = this.storage.get(this.STORAGE_KEYS.REFRESH_TOKEN);
         if (!refreshToken) {
-            throw new Error('No refresh token available');
+            throw new Error("No refresh token available");
         }
         try {
             // Create and validate payload
             const payload = AuthRefreshRequestSchema.parse({
                 refresh_token: refreshToken,
-                client_id: this.clientId
+                client_id: this.clientId,
             });
-            const response = await this._makeRequest('/auth/refresh', {
-                method: 'POST',
-                body: JSON.stringify(payload)
+            const response = await this._makeRequest("/auth/refresh", {
+                method: "POST",
+                body: JSON.stringify(payload),
             }, RefreshTokensResponseSchema);
             // Store the new tokens (keeping the existing refresh token)
             this._storeTokens({
                 ...response,
-                refresh_token: refreshToken // Keep the existing refresh token if not returned
+                refresh_token: refreshToken, // Keep the existing refresh token if not returned
             });
             return response;
         }
         catch (error) {
             // If refresh fails, clear the tokens and throw error
             this.logout();
-            throw new Error('Token refresh failed. You have been logged out.');
+            throw new Error("Token refresh failed. You have been logged out.");
         }
     }
     /**
@@ -345,16 +354,16 @@ class SentinelAuth {
     async verifyToken(token) {
         token = token || this.getAccessToken() || undefined;
         if (!token) {
-            throw new Error('No token to verify');
+            throw new Error("No token to verify");
         }
         // Create and validate payload
         const payload = AuthVerifyRequestSchema.parse({
             token,
-            client_id: this.clientId
+            client_id: this.clientId,
         });
-        return this._makeRequest('/auth/verify', {
-            method: 'POST',
-            body: JSON.stringify(payload)
+        return this._makeRequest("/auth/verify", {
+            method: "POST",
+            body: JSON.stringify(payload),
         }, AuthVerifyResponseSchema);
     }
     /**
@@ -395,16 +404,16 @@ class SentinelAuth {
         if (!token)
             return null;
         try {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const base64Url = token.split(".")[1];
+            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
             const jsonPayload = decodeURIComponent(atob(base64)
-                .split('')
-                .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                .join(''));
+                .split("")
+                .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+                .join(""));
             return JSON.parse(jsonPayload);
         }
         catch (error) {
-            console.error('Failed to decode token:', error);
+            console.error("Failed to decode token:", error);
             return null;
         }
     }
@@ -447,15 +456,17 @@ class SentinelAuth {
      * @returns Headers object with Authorization header
      */
     async getAuthHeaders(refreshIfNeeded = true) {
-        if (refreshIfNeeded && this.isTokenExpired(this.refreshThreshold) && this.getRefreshToken()) {
+        if (refreshIfNeeded &&
+            this.isTokenExpired(this.refreshThreshold) &&
+            this.getRefreshToken()) {
             await this.refreshTokens();
         }
         const accessToken = this.getAccessToken();
         if (!accessToken) {
-            throw new Error('Not authenticated');
+            throw new Error("Not authenticated");
         }
         return {
-            'Authorization': `Bearer ${accessToken}`
+            Authorization: `Bearer ${accessToken}`,
         };
     }
     /**
@@ -467,10 +478,10 @@ class SentinelAuth {
         // If no code is provided, try to get it from URL query parameters
         if (!code) {
             const urlParams = new URLSearchParams(window.location.search);
-            code = urlParams.get('code') || undefined;
+            code = urlParams.get("code") || undefined;
         }
         if (!code) {
-            throw new Error('No authentication code found');
+            throw new Error("No authentication code found");
         }
         return this.exchangeCodeForTokens(code);
     }
@@ -485,6 +496,115 @@ class SentinelAuth {
         }
         // Clear all tokens from storage
         this.storage.clear();
+    }
+    /**
+     * Generates a random string for state or code verifier
+     * @param length - Length of the random string
+     * @returns Random string
+     */
+    _generateRandomString(length = 43) {
+        const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+        let random = "";
+        const randomValues = new Uint8Array(length);
+        window.crypto.getRandomValues(randomValues);
+        randomValues.forEach((val) => (random += charset[val % charset.length]));
+        return random;
+    }
+    /**
+     * Generates a code challenge from a code verifier
+     * @param codeVerifier - The code verifier string
+     * @returns Code challenge string
+     */
+    async _generateCodeChallenge(codeVerifier) {
+        // Hash the code verifier using SHA-256
+        const encoder = new TextEncoder();
+        const data = encoder.encode(codeVerifier);
+        const hash = await window.crypto.subtle.digest("SHA-256", data);
+        // Convert the hash to base64url encoding
+        return btoa(String.fromCharCode(...new Uint8Array(hash)))
+            .replace(/\+/g, "-")
+            .replace(/\//g, "_")
+            .replace(/=+$/, "");
+    }
+    /**
+     * Generate authentication URL for a provider with PKCE parameters
+     * @param providerId - ID of the authentication provider
+     * @param options - Additional options
+     * @returns Generated auth URL and PKCE data
+     */
+    async generateAuthUrl(options = {}) {
+        // Use provided values or generate new ones
+        const redirectUri = options.redirectUri || this.redirectUri;
+        if (!redirectUri) {
+            throw new Error("redirectUri is required either in options or constructor config");
+        }
+        const state = options.state || this._generateRandomString(32);
+        const codeVerifier = options.codeVerifier || this._generateRandomString(43);
+        const codeChallenge = await this._generateCodeChallenge(codeVerifier);
+        // Store code verifier in storage for later use during token exchange
+        this.storage.set(`sentinel_code_verifier_${state}`, codeVerifier);
+        // store the state as well
+        this.storage.set(`sentinel_state`, state);
+        // Build query parameters
+        const params = new URLSearchParams({
+            client_id: this.clientId,
+            redirect_uri: redirectUri,
+            response_type: "code",
+            state,
+            code_challenge: codeChallenge,
+            code_challenge_method: "S256",
+        });
+        const url = `${this.uiBaseUrl}/?${params.toString()}`;
+        return {
+            url,
+            state,
+            codeVerifier,
+        };
+    }
+    /**
+     * Handle authentication callback with PKCE support
+     * @param options - Callback options
+     * @returns Token response
+     */
+    async handleAuthCallbackWithPKCE(options = {}) {
+        // If no code or state is provided, try to get them from URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = options.code || urlParams.get("code");
+        const state = options.state || urlParams.get("state");
+        if (!code) {
+            throw new Error("No authentication code found");
+        }
+        let savedState = this.storage.get(`sentinel_state`);
+        if (!savedState || savedState !== state) {
+            throw new Error("Possible middle man attack");
+        }
+        let codeVerifier = options.codeVerifier;
+        // If state is available and no code verifier provided, try to get from storage
+        if (state && !codeVerifier) {
+            codeVerifier =
+                this.storage.get(`sentinel_code_verifier_${state}`) || undefined;
+            // Clean up the stored code verifier
+            this.storage.remove(`sentinel_code_verifier_${state}`);
+        }
+        if (!codeVerifier) {
+            throw new Error("No code verifier found for PKCE auth flow");
+        }
+        // Create payload for token exchange with code verifier
+        const payload = {
+            code,
+            client_id: this.clientId,
+            code_verifier: codeVerifier,
+            redirect_uri: this.redirectUri,
+        };
+        // Exchange code for tokens
+        const response = await this._makeRequest("/auth/token", {
+            method: "POST",
+            body: JSON.stringify(payload),
+        }, TokensResponseSchema);
+        this.storage.remove("sentinel_state");
+        // Store the tokens
+        this._storeTokens(response);
+        return response;
     }
 }
 

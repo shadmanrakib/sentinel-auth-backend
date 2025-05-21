@@ -53,7 +53,7 @@ func MakePostProviderEmailLoginHandler(db *gorm.DB) func(*gin.Context) {
 			}
 		}
 
-		codeResp, err := auth.GenerateAuthCode(db, identity)
+		codeResp, err := auth.GenerateAuthCode(db, identity, req.CodeChallenge, string(req.CodeChallengeMethod))
 
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, "Something went wrong :(")
@@ -63,6 +63,7 @@ func MakePostProviderEmailLoginHandler(db *gorm.DB) func(*gin.Context) {
 		ctx.JSON(http.StatusOK, api.AuthCodeResponse{
 			Code:      codeResp.Code,
 			ExpiresIn: codeResp.ExpiresIn,
+			State:     req.State,
 		})
 	}
 }

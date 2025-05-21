@@ -51,7 +51,7 @@ const EmailLoginPage = () => {
 
     setClientId(clientId);
 
-    if (!process.env.NEXT_PUBLIC_AUTH_API_URL) {
+    if (!process.env.NEXT_PUBLIC_SENTINEL_API_URL) {
       setError("Missing auth api url");
       setLoading(false);
       return;
@@ -60,7 +60,8 @@ const EmailLoginPage = () => {
     // Initialize SentinelAuth client
     // The baseUrl will need to be configured based on your environment
     auth.current = new SentinelAuth({
-      baseUrl: process.env.NEXT_PUBLIC_AUTH_API_URL,
+      apiBaseUrl: process.env.NEXT_PUBLIC_SENTINEL_API_URL!,
+      uiBaseUrl: process.env.NEXT_PUBLIC_SENTINEL_UI_URL!,
       clientId: clientId,
       storageType: "localStorage",
     });

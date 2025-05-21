@@ -42,7 +42,7 @@ func MakePostAuthTokenHandler(db *gorm.DB) func(*gin.Context) {
 			return
 		}
 
-		tokens, err := auth.RedeemAuthCode(db, req.ClientId, req.Code, client)
+		tokens, err := auth.RedeemAuthCode(db, req.ClientId, req.Code, req.CodeVerifier, client)
 
 		// handle errors in creating user
 		if err != nil {
