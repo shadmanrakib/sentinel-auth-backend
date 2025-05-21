@@ -21,7 +21,7 @@ func main() {
 
 	// create database and run necessary migrations
 	db := database.SetupDb(appConfig)
-	database.SeedDb(db)
+	database.SeedDb(db, appConfig)
 
 	server := server.Create(db, &appConfig)
 

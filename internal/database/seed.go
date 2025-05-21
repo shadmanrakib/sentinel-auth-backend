@@ -2,6 +2,7 @@ package database
 
 import (
 	"log"
+	"sentinel-auth-backend/internal/config"
 	"sentinel-auth-backend/internal/crypto"
 	"sentinel-auth-backend/internal/models"
 
@@ -9,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func SeedDb(db *gorm.DB) {
+func SeedDb(db *gorm.DB, appConfig config.Config) {
 	// Check if database is already seeded by looking for a root client
 	var count int64
 	db.Model(&models.Client{}).Where("is_root_client = ?", true).Count(&count)
@@ -20,6 +21,7 @@ func SeedDb(db *gorm.DB) {
 
 	// Create root client
 	rootClient := models.Client{
+		ID:     appConfig.ROOT_CLIENT_ID,
 		Name:   "Admin Root Client",
 		Secret: crypto.GenerateSecureSecret(),
 		// TODO: Figure out how to handle the urls for root

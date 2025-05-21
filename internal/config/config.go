@@ -6,12 +6,13 @@ import (
 )
 
 type Config struct {
-	API_ADDR    string
-	DB_HOST     string
-	DB_USER     string
-	DB_PASSWORD string
-	DB_NAME     string
-	DB_PORT     string
+	API_ADDR       string
+	DB_HOST        string
+	DB_USER        string
+	DB_PASSWORD    string
+	DB_NAME        string
+	DB_PORT        string
+	ROOT_CLIENT_ID string
 }
 
 func getNonemptyEnvOrError(variable string) (string, error) {
@@ -55,6 +56,11 @@ func InitConfig() (Config, error) {
 		return Config{}, err
 	}
 
+	ROOT_CLIENT_ID, err := getNonemptyEnvOrError("ROOT_CLIENT_ID")
+	if err != nil {
+		return Config{}, err
+	}
+
 	config := Config{
 		API_ADDR,
 		DB_HOST,
@@ -62,6 +68,7 @@ func InitConfig() (Config, error) {
 		DB_PASSWORD,
 		DB_NAME,
 		DB_PORT,
+		ROOT_CLIENT_ID,
 	}
 
 	return config, nil
