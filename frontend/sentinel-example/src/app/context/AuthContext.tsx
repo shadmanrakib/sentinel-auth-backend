@@ -38,14 +38,16 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
     if (typeof window === "undefined") return;
 
     if (!authRef.current) {
-      const sentinelAuth = new SentinelAuth({
+      const config = {
         apiBaseUrl: process.env.NEXT_PUBLIC_SENTINEL_API_URL!,
         uiBaseUrl: process.env.NEXT_PUBLIC_SENTINEL_UI_URL!,
         clientId: process.env.NEXT_PUBLIC_SENTINEL_CLIENT_ID!,
         redirectUri: process.env.NEXT_PUBLIC_SENTINEL_REDIRECT_URI,
-        storageType: "localStorage",
+        storageType: "localStorage" as const,
         autoRefresh: true,
-      });
+      };
+      const sentinelAuth = new SentinelAuth(config);
+      console.log(config);
       authRef.current = sentinelAuth;
 
       // Subscribe to auth state changes
