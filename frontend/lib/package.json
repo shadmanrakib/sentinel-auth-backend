@@ -17,12 +17,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "crypto-js": "^4.2.0",
     "zod": "^3.24.4"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-typescript": "^12.1.2",
+    "@types/crypto-js": "^4.2.2",
     "rollup": "^4.40.2",
     "rollup-plugin-dts": "^6.2.1",
     "tslib": "^2.8.1",

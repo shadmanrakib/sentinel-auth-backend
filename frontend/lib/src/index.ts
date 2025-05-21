@@ -6,6 +6,7 @@
  */
 
 import { z } from "zod";
+import crypto from "crypto-js"
 
 // Zod schemas for request and response validation
 const TokensResponseSchema = z.object({
@@ -798,13 +799,13 @@ class SentinelAuth {
    */
   private async _generateCodeChallenge(codeVerifier: string): Promise<string> {
     // Hash the code verifier using SHA-256
-    const encoder = new TextEncoder();
-    const data = encoder.encode(codeVerifier);
-    const hash = await window.crypto.subtle.digest("SHA-256", data);
+    // const encoder = new TextEncoder();
+    // const data = encoder.encode(codeVerifier);
+    // const hash = await window.crypto.subtle.digest("SHA-256", data);
 
-    // Convert the hash to base64url encoding
-    const hashArr = Array.from(new Uint8Array(hash)); // Convert to regular array
-    const hashStr = hashArr.map((byte) => String.fromCharCode(byte)).join("");
+    // // Convert the hash to base64url encoding
+    // const hashArr = Array.from(new Uint8Array(hash)); // Convert to regular array
+    const hashStr = crypto.SHA256(codeVerifier).toString();
     const base64 = btoa(hashStr);
 
     const base64url = base64

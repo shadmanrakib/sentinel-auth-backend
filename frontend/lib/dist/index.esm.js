@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import crypto from 'crypto-js';
 
 // This file was scaffolded using Gen AI with the openapi specification as the prompt input
 /**
@@ -595,12 +596,12 @@ class SentinelAuth {
      */
     async _generateCodeChallenge(codeVerifier) {
         // Hash the code verifier using SHA-256
-        const encoder = new TextEncoder();
-        const data = encoder.encode(codeVerifier);
-        const hash = await window.crypto.subtle.digest("SHA-256", data);
-        // Convert the hash to base64url encoding
-        const hashArr = Array.from(new Uint8Array(hash)); // Convert to regular array
-        const hashStr = hashArr.map((byte) => String.fromCharCode(byte)).join("");
+        // const encoder = new TextEncoder();
+        // const data = encoder.encode(codeVerifier);
+        // const hash = await window.crypto.subtle.digest("SHA-256", data);
+        // // Convert the hash to base64url encoding
+        // const hashArr = Array.from(new Uint8Array(hash)); // Convert to regular array
+        const hashStr = crypto.SHA256(codeVerifier).toString();
         const base64 = btoa(hashStr);
         const base64url = base64
             .replace(/\+/g, "-")
